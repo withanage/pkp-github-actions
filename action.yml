@@ -22,13 +22,8 @@ runs:
   steps:
     - uses: actions/checkout@v4
       with:
-        repository: 'xmlFlow/pkp-github-actions'
+        repository: 'pkp/pkp-github-actions'
 
-    - name: Check locales
-      run: |
-        sudo locale-gen en_US.UTF-8
-        exit 1
-      shell: bash
     - name: Install postgres server
       if: ${{matrix.database == 'pgsql'}}
       run: |
