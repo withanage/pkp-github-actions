@@ -10,7 +10,9 @@
 #
 
 set -e
-./lib/pkp/tools/travis/dump-database.sh
+
+
+
 tar czf ${FILESDUMP} ${FILESDIR}
 
 # If desired, store the built dataset in https://github.com/pkp/datasets

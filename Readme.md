@@ -85,6 +85,15 @@ jobs:
 ```
 
 
+## pkp branch integration progress
+| Application | main | Stable-3_4_0 | Stable-3_3_0 |
+|-------------|------|--------------|--------------| 
+| OJS         | x    |              |              | 
+| OMP         | x    |              |              | 
+| OPS         | x    |              |              | 
+| pkp-lib     | x    |              |              | 
+
+
 
 ### Next steps
 - get rid of long variable combination e.g. ${{inputs.application || github.event.repository.name}}
@@ -92,3 +101,5 @@ jobs:
  in shell scripts we need them explicitly, creating duplication
 - global database user name for e.g. ojs-ci to reduce variabls
   https://github.blog/2022-05-09-supercharging-github-actions-with-job-summaries/
+
+
