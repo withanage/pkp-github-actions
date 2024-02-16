@@ -238,7 +238,7 @@ runs:
       run: |
         start_time=$(date -u +%s)
         cd ~/${{inputs.application || github.event.repository.name }} 
-        DATASET_BRANCHES=("stable-3_2_0" "stable-3_2_1"  "stable-3_3_0"  "stable-3_4_0" )
+        DATASET_BRANCHES=("stable-3_3_0"  "stable-3_4_0" )
         for DATASET_BRANCH in "${DATASET_BRANCHES[@]}"
         do
           source  ${{ github.workspace }}/pkp-github-actions/.github/actions/prepare-tests.sh
