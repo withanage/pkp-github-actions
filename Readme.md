@@ -69,7 +69,7 @@ jobs:
       fail-fast: false
       matrix:
         application: ['omp','ojs','ops']
-        database: ['pgsql','mysql']
+        database: ['pgsql','mysql','mariadb']
         php-version: [ '8.1','8.2']
 
     name: pkp-lib
@@ -96,9 +96,9 @@ jobs:
 
 
 ### Next steps
+- remove additional variables
 - get rid of long variable combination e.g. ${{inputs.application || github.event.repository.name}}
-- Find a github actions way to set the env variables better, 
- in shell scripts we need them explicitly, creating duplication
+- Find a github actions way to set the env variables better, in shell scripts we need them explicitly, creating duplication
 - global database user name for e.g. ojs-ci to reduce variabls
   https://github.blog/2022-05-09-supercharging-github-actions-with-job-summaries/
 

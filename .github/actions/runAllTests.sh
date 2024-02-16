@@ -11,21 +11,18 @@
 # If no options are specified, then all tests will be executed.
 #
 # Some tests will certain require environment variables in order to cnfigure
-# the environment. In particular...
-#  BASEURL="http://localhost/omp": Full URL to base URL, excluding index.php
-#  DBHOST=localhost: Hostname of database server
-#  DBNAME=yyy: Database name
-#  DBUSERNAME=xxx: Username for database connections
-#  DBPASSWORD=zzz: Database password
-#  FILESDIR=files: Pathname to use for storing server-side submission files
-#  DBTYPE=MySQL: Name of database driver (MySQL or PostgreSQL)
-#
+# Set  environment variables.
+#export BASEURL="http://localhost" # This is the URL to the installation directory.
+export DBHOST=localhost # Database hostname
+export DBNAME=${APPLICATION} # Database name
+export DBUSERNAME=${APPLICATION} # Database username
+export DBPASSWORD=${APPLICATION} # Database password
+export FILESDIR=files # Files directory (relative to application directory -- do not do this in production!)
+export DATABASEDUMP=database.sql.gz  # Path and filename where a database dump can be created/accessed
+export FILESDUMP=files.tar.gz # Path and filename where a database dump can be created/accessed
 
 set -e # Fail on first error
 
-# We recommend using Travis (https://travis-ci.org/) for continuous-integration
-# based testing. Review the Travis configuration file (.travis.yml) as a
-# reference for running the test locally, should you choose to do so.
 
 ### Command Line Options ###
 

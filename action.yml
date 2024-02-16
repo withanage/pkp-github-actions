@@ -17,7 +17,7 @@ inputs:
     default: true
     required: false
   node_version:
-    default: stable
+    default: 20.11.0
   reset_commit:
     required: false
 
@@ -28,6 +28,20 @@ runs:
     - uses: actions/checkout@v4
       with:
         repository: 'pkp/pkp-github-actions'
+        path: pkp-github-actions
+        ref: v1
+
+    - name: print
+      id: print
+      run: |
+        
+        {
+          echo " | OS  |PHP| DB|  Node |   "
+          echo "| ---| --- | ---- | ---| "
+          echo "|  :penguin: ${{runner.os}} ${{runner.arch}}   $( lsb_release -i | cut -c 17-) $( lsb_release -c | cut -c 11-) $( lsb_release -r | cut -c 10-)   | ${{matrix.php-version}} | ${{matrix.database}} |  ${{inputs.node_version}} |"
+        } >> $GITHUB_STEP_SUMMARY
+
+      shell: bash
 
     - name: Install postgres server
       if: ${{matrix.database == 'pgsql'}}
@@ -64,23 +78,18 @@ runs:
       if: ${{  github.event_name  == 'push' &&      (inputs.repository == '' && inputs.application == '' && inputs.branch == '')}}
       run: |
         git clone -b ${{ github.head_ref || github.ref_name }} https://github.com/${{ github.repository}} ~/${{ github.event.repository.name }}
-       
-        echo ":bulb: Repository https://github.com/${{ github.repository}}  on branch: ${{ github.head_ref || github.ref_name }} " >> $GITHUB_STEP_SUMMARY
-
       shell: bash
 
     - name: Install PKP application for pull_request
       if:  ${{github.event_name  == 'pull_request' &&    (inputs.repository == '' && inputs.application == '' && inputs.branch == '')}}
       run: |
         git clone -b ${{ github.event.pull_request.head.ref}} ${{ github.event.pull_request.head.repo.html_url}} ~/${{ github.event.pull_request.head.repo.name }} --depth 1
-        echo ":bulb: Repository  ${{ github.event.pull_request.head.repo.html_url}} on branch: ${{ github.event.pull_request.head.ref}} " >> $GITHUB_STEP_SUMMARY
       shell: bash
 
     - name: Install current application for  external plugins and pkp-lib for push and pull_request
       if:  ${{  inputs.repository != '' && inputs.application != '' && inputs.branch != ''}}
       run: |
         git clone -b ${{inputs.branch}} https://github.com/${{inputs.repository}}/${{inputs.application}} ~/${{inputs.application}} --depth 1
-        echo ":bulb: Repository https://github.com/${{inputs.repository}}/${{inputs.application}}  on branch:${{inputs.branch}}" >> $GITHUB_STEP_SUMMARY
       shell: bash
 
     - name: Reset to a specific commit
@@ -91,13 +100,10 @@ runs:
         echo ":bulb: Reset to commit ${{  inputs.reset_commit}}"
       shell: bash
 
-
-
     - name: Install  Submodules
       run: |
         cd ~/${{inputs.application || github.event.pull_request.head.repo.name || github.event.repository.name  }}
         git submodule update --init --recursive
-        echo ":bulb: Install  Submodules"
       shell: bash
 
     - name : Checkout for  pkp-lib for Push
@@ -107,7 +113,6 @@ runs:
         git remote add ${{ github.event.repository.full_name}} https://github.com/${{ github.repository}}
         git fetch ${{ github.event.repository.full_name}} ${{github.ref_name}}
         git checkout ${{ github.event.repository.full_name}}/${{github.ref_name}}
-        echo ":bulb: PKP-lib https://github.com/${{ github.repository}} ${{github.ref_name}}" >> $GITHUB_STEP_SUMMARY
       shell: bash
 
     - name: Checkout for  pkp-lib for Pull_request
@@ -117,14 +122,12 @@ runs:
         git remote add ${{ github.event.pull_request.head.repo.full_name}}   ${{ github.event.pull_request.head.repo.html_url}} 
         git fetch ${{ github.event.pull_request.head.repo.full_name}}  ${{ github.event.pull_request.head.ref}}
         git checkout ${{ github.event.pull_request.head.repo.full_name}}/${{ github.event.pull_request.head.ref}}
-        echo ":bulb: PKP-lib  ${{ github.event.pull_request.head.repo.html_url}} on branch: ${{ github.event.pull_request.head.ref}} " >> $GITHUB_STEP_SUMMARY
       shell: bash
-
 
     - name: Install  dependencies
       run: |
         cd ~/${{inputs.application || github.event.repository.name }}
-        ${{ github.workspace }}/.github/actions/install-dependencies.sh
+         ${{ github.workspace }}/pkp-github-actions/.github/actions/install-dependencies.sh
       env:
         NODE_VERSION: ${{inputs.node_version}}
       shell: bash
@@ -137,102 +140,86 @@ runs:
       if: ${{ inputs.validate == 'true'}}
       run: |
         cd ~/${{inputs.application || github.event.repository.name }}
-        ${{ github.workspace }}/.github/actions/install-validation-tools.sh
+         ${{ github.workspace }}/pkp-github-actions/.github/actions/install-validation-tools.sh
       shell: bash
+
 
     - name: Run XML validation
       if: ${{ inputs.validate == 'true'}}
+      id: validation
       run: |
+        start_time=$(date -u +%s)
+        echo "status=:red_circle:" >> $GITHUB_OUTPUT
         cd ~/${{inputs.application || github.event.repository.name }}
-         ${{ github.workspace }}/.github/actions/validate-xml.sh
-      shell: bash
-
-    - name: Run Javascript/JSON validation
-      if: ${{ inputs.validate == 'true'}}
-      run: |
-        cd ~/${{inputs.application || github.event.repository.name }} 
-         ${{ github.workspace }}/.github/actions/buildjs.sh -n
-         ${{ github.workspace }}/.github/actions/validate-json.sh
-      shell: bash
-
-    - name: Run linting
-      if: ${{ inputs.validate == 'true'}}
-      run: |
-        cd ~/${{inputs.application || github.event.repository.name }}
+        ${{ github.workspace }}/pkp-github-actions/.github/actions/validate-xml.sh
+        ${{ github.workspace }}/pkp-github-actions/.github/actions/buildjs.sh -n
+        ${{ github.workspace }}/pkp-github-actions/.github/actions/validate-json.sh
         npm run lint
-      shell: bash
-
-    - name: Run Documentation validation
-      if: ${{ inputs.validate == 'true'}}
-      run: |
-        cd ~/${{inputs.application || github.event.repository.name }}
-        ${{ github.workspace }}/.github/actions/run-document-validation.sh
+        ${{ github.workspace }}/pkp-github-actions/.github/actions/run-document-validation.sh
+        duration=$(date -d@$(($(date -u +%s) - $start_time)) -u +%H:%M:%S) 
+        echo "duration=$duration" >> $GITHUB_OUTPUT
+        echo "status=:white_check_mark:" >> $GITHUB_OUTPUT
       shell: bash
 
     - name:  Run  HTTP Server
       if: ${{ inputs.test == 'true'}}
       run: |
         cd ~/${{inputs.application || github.event.repository.name }} 
-         ${{ github.workspace }}/.github/actions/run-http-server.sh
+        ${{ github.workspace }}/pkp-github-actions/.github/actions/run-http-server.sh
       shell: bash
 
     - name: Prepare test environment
-      run: |
-        cd ~/${{inputs.application || github.event.repository.name }} 
-         ${{ github.workspace }}/.github/actions/prepare-tests.sh
-      shell: bash
-      env:
-        TEST: ${{matrix.database}}
-        DBTYPE: ${{matrix.database == 'pgsql' && 'PostgreSQL' || 'MySQLi'}}
-        APPLICATION: ${{inputs.application || github.event.repository.name}}
-
-    - name: Run  integration tests
       if: ${{ inputs.test == 'true'}}
       run: |
         cd ~/${{inputs.application || github.event.repository.name }} 
-        ${{ github.workspace }}/.github/actions/run-integration-tests.sh
-        echo ":rocket: run integration tests" >> $GITHUB_STEP_SUMMARY
-      shell: bash
-      env:
-        BASEURL: http://localhost
-        CYPRESS_BASE_URL: http://127.0.0.1:8000
-        CYPRESS_DBTYPE: ${{matrix.database=='pgsql' && 'PostgreSQL' || 'MySQLi'}}
-        CYPRESS_DBNAME: ${{inputs.application|| github.event.repository.name}}-ci
-        CYPRESS_DBUSERNAME: ${{inputs.application|| github.event.repository.name}}-ci
-        CYPRESS_DBPASSWORD: ${{inputs.application|| github.event.repository.name}}-ci
-        CYPRESS_DBHOST: 127.0.0.1
-        CYPRESS_FILESDIR: files
-        APPLICATION: ${{inputs.application || github.event.repository.name}}
-
-    - name: Run data build
-      if: ${{  github.event_name  == 'push' &&  inputs.php-version == '8.1'}}
-      run: |
-        cd ~/${{inputs.application || github.event.repository.name }} 
-        ${{ github.workspace }}//.github/actions/dump-database.sh
-      shell:  bash
-      env:
-        DATABASEDUMP: database.sql.gz
-        FILESDUMP: files.tar.gz
-
-
-    - name: Run unit tests
-      if: ${{ inputs.test == 'true' }}
-      run: |
-        cd ~/${{inputs.application || github.event.repository.name }} 
-        ${{ github.workspace }}//.github/actions/runAllTests.sh -CcPpdR
-        echo ":rocket: Run unit tests" >> $GITHUB_STEP_SUMMARY
+        ${{ github.workspace }}/pkp-github-actions/.github/actions/prepare-tests.sh
       shell: bash
       env:
         TEST: ${{matrix.database}}
-        DBTYPE: ${{matrix.database == 'pgsql' && 'PostgreSQL' || 'MySQLi'}}
-        DATABASEDUMP: database.sql.gz
-        FILESDUMP: files.tar.gz
-        DBHOST: 127.0.0.1
-        DBNAME: ${{inputs.application || github.event.repository.name}}-ci
-        DBUSERNAME: ${{inputs.application || github.event.repository.name}}-ci
-        DBPASSWORD: ${{inputs.application || github.event.repository.name}}-ci
         APPLICATION: ${{inputs.application || github.event.repository.name}}
 
+    - name: Run  integration tests
+      id: integration-test
+      if: ${{ inputs.test == 'true'}}
+      run: |
+        start_time=$(date -u +%s)
+        echo "status=:red_circle:" >> $GITHUB_OUTPUT
+        cd ~/${{inputs.application || github.event.repository.name }}
+        ${{ github.workspace }}/pkp-github-actions/.github/actions/run-integration-tests.sh
+        duration=$(date -d@$(($(date -u +%s) - $start_time)) -u +%H:%M:%S) 
+        echo "duration=$duration" >> $GITHUB_OUTPUT
+        echo "status=:white_check_mark:" >> $GITHUB_OUTPUT
+      shell: bash
+      env:
+        BASEURL: http://localhost
+        CYPRESS_DBTYPE: ${{matrix.database=='pgsql' && 'PostgreSQL' || 'MySQLi'}}
+        APPLICATION: ${{inputs.application || github.event.repository.name}}
+
+    - name: Dump database
+      run: |
+        cd ~/${{inputs.application || github.event.repository.name }}
+        ${{ github.workspace }}/pkp-github-actions/.github/actions/dump-database.sh
+      shell: bash
+      env:
+        APPLICATION: ${{inputs.application || github.event.repository.name}}
+        DBTYPE: ${{matrix.database=='pgsql' && 'PostgreSQL' || 'MySQLi'}}
+
+    - name: Run unit tests
+      id: unit-test
+      if: ${{ inputs.test == 'true' }}
+      run: |
+        start_time=$(date -u +%s)
+        echo "status=:red_circle:" >> $GITHUB_OUTPUT
+        cd ~/${{inputs.application || github.event.repository.name }} 
+         ${{ github.workspace }}/pkp-github-actions/.github/actions/runAllTests.sh -CcPpdR
+        duration=$(date -d@$(($(date -u +%s) - $start_time)) -u +%H:%M:%S) 
+        echo "duration=$duration" >> $GITHUB_OUTPUT
+        echo "status=:white_check_mark:" >> $GITHUB_OUTPUT
+      shell: bash
+      env:
+        TEST: ${{matrix.database}}
+        APPLICATION: ${{inputs.application || github.event.repository.name}}
+        DBTYPE: ${{matrix.database == 'pgsql' && 'PostgreSQL' || 'MySQLi'}}
 
     - name: Download datasets
       if: ${{  github.event_name  == 'pull_request' &&  inputs.upgrade == 'true'}}
@@ -240,23 +227,47 @@ runs:
         cd ~/${{inputs.application || github.event.repository.name }} 
         git clone https://github.com/pkp/datasets --depth 1
       shell: bash
+      env:
+        DBTYPE: ${{matrix.database == 'pgsql' && 'PostgreSQL' || 'MySQLi'}}
+        DATABASEDUMP: database.sql.gz
+        FILESDUMP: files.tar.gz
 
     - name: Run upgrade tests
-      if: ${{  github.event_name  == 'pull_request' && inputs.upgrade == 'true' && (matrix.database == 'pgsql' || matrix.database == 'mysql' )}}
+      id: upgrade
+      if: ${{  github.event_name  == 'push' && inputs.upgrade == 'true' && (matrix.database == 'pgsql' || matrix.database == 'mysql' ) && (matrix.php-version == '8.1')}}
       run: |
+        start_time=$(date -u +%s)
         cd ~/${{inputs.application || github.event.repository.name }} 
         DATASET_BRANCHES=("stable-3_2_0" "stable-3_2_1"  "stable-3_3_0"  "stable-3_4_0" )
         for DATASET_BRANCH in "${DATASET_BRANCHES[@]}"
         do
-          source ${{ github.workspace }}/.github/actions/prepare-tests.sh
-          ${{ github.workspace }}/.github/actions/upgrade-pkp-application.sh
-          echo ":rocket: Successfully upgraded  from ${DATASET_BRANCH} " >> $GITHUB_STEP_SUMMARY
+          source  ${{ github.workspace }}/pkp-github-actions/.github/actions/prepare-tests.sh
+          ${{ github.workspace }}/pkp-github-actions/.github/actions/upgrade-pkp-application.sh
+         
         done
+        duration=$(date -d@$(($(date -u +%s) - $start_time)) -u +%H:%M:%S) 
+        echo "duration=$duration" >> $GITHUB_OUTPUT
+        echo "status=:white_check_mark:" >> $GITHUB_OUTPUT
       env:
         TEST: ${{matrix.database}}
         DBTYPE: ${{matrix.database == 'pgsql' && 'PostgreSQL' || 'MySQLi'}}
         APPLICATION: ${{inputs.application || github.event.repository.name}}
         DATASET_BRANCH: ${DATASET_BRANCH}
+      shell: bash
+
+    - name: Print summary
+      if: always()
+      run: |
+        {
+          echo " |Step | |:clock4: "
+          echo "| --- | --- | --- |"
+          echo "|  Validation | ${{steps.validation.outputs.status}} |${{steps.validation.outputs.duration}} |"
+          echo "|  Integration test | ${{steps.integration-test.outputs.status}} |${{steps.integration-test.outputs.duration}} |"
+          echo "|  Unit test | ${{steps.unit-test.outputs.status}} |${{steps.unit-test.outputs.duration}} |"
+          echo "|  Upgrade | ${{steps.upgrade.outputs.status}}|${{steps.upgrade.outputs.duration}} |"
+        
+        } >> $GITHUB_STEP_SUMMARY
+
       shell: bash
 
     - uses: actions/upload-artifact@v4
@@ -265,6 +276,4 @@ runs:
         name: Create Cypess screenshots as artifacts
         path: ~/${{ inputs.application || github.event.repository.name }}/cypress/screenshots
         if-no-files-found: ignore
-
-
 
