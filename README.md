@@ -7,10 +7,10 @@
     -   [Example configuration for pkp-lib or
         plugins](#example-configuration-for-pkp-lib-or-plugins)
         -   [Explanation](#explanation-1)
-        -   [pkp branch integration
-            progress](#pkp-branch-integration-progress)
-        -   [Next steps](#next-steps)
-        -   [Acknowledgements](#acknowledgements)
+    -   [Branch integration progress](#branch-integration-progress)
+    -   [Next steps](#next-steps)
+    -   [Acknowledgements](#acknowledgements)
+
 
 # PKP Github actions 
 
@@ -109,7 +109,7 @@ Only additional steps from the app configuration are mentioned, for the missing 
 19. `test`: Option to disable validation to reduce test run-time , must be only used to test validation or upgrade
 19. `upgrade`: Option to disable upgrade to reduce test run-time 
 
-### pkp branch integration progress
+## Branch integration progress
 | Application | main | Stable-3_4_0 | Stable-3_3_0 |
 |-------------|------|--------------|--------------| 
 | OJS         | x    |              |              | 
@@ -118,7 +118,7 @@ Only additional steps from the app configuration are mentioned, for the missing 
 | pkp-lib     | x    |              |              | 
 
 
-### Next steps
+## Next steps
 
 - remove additional variables
 - get rid of long variable combination e.g. ${{inputs.application || github.event.repository.name}}
@@ -127,7 +127,7 @@ Only additional steps from the app configuration are mentioned, for the missing 
 References
 -  https://github.blog/2022-05-09-supercharging-github-actions-with-job-summaries/
 
-### Acknowledgements
+## Acknowledgements
 - During the development: chat.openai.com used as a help tool
 
 
