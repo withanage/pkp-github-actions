@@ -1,4 +1,4 @@
-cd ../pkp #!/bin/bash
+#!/bin/bash
 
 set -e
 sudo pip install six
