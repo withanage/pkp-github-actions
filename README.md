@@ -1,10 +1,19 @@
-
-# Introduction
-
+-   [PKP Github actions](#pkp-github-actions)
+    -   [Usage](#usage)
+        -   [Input variables](#input-variables)
+    -   [Default configuration for
+        OJS/OMP/OPS](#default-configuration-for-ojsompops)
+        -   [Explanation](#explanation)
+    -   [Example configuration for pkp-lib or
+        plugins](#example-configuration-for-pkp-lib-or-plugins)
+        -   [Explanation](#explanation-1)
+        -   [pkp branch integration
+            progress](#pkp-branch-integration-progress)
+        -   [Next steps](#next-steps)
+        -   [Acknowledgements](#acknowledgements)
 
 # PKP Github actions 
 
-## Introduction
 The PKP GitHub Actions facilitate automated testing for continuous integration within OJS, OMP, and OPS.
 
 Presently, PKP applications incorporate unit tests (PHPUnit) and integrated tests (Cypress), alongside upgrade tests.
@@ -18,16 +27,16 @@ and their configuration can be found in the following file_path `.github/workflo
 ### Input variables
 
 
-| Variable     | Description                                          | Default             |
-|--------------|------------------------------------------------------|---------------------| 
-| repository   | github repository name                               | Current repository  |
-| application  | PKP Application( OJS\| OMP\| OPS      )              | Current application |
-| branch       | git branch                                           | Current branch      |
-| validate     | run valiadtoin tests true\|false                     | true                |
-| test         | run unit and integration tests true\|false           | true                |
-| upgrade      | run upgrade tests , only for pull requests           | true                |
-| node_version | can be set manually for older versions eg. 16.1.0    | 20.11.0             |
-| reset_commit | Explicitly test a certain version of PKP Application | -                   |
+| Variable     | Description                                           | Default             |
+|--------------|-------------------------------------------------------|---------------------| 
+| repository   | github repository name                                | Current repository  |
+| application  | PKP Application (OJS\| OMP\| OPS)                     | Current application |
+| branch       | git branch                                            | Current branch      |
+| validate     | run valiadtoin tests true\|false                      | true                |
+| test         | run unit and integration tests true\|false            | true                |
+| upgrade      | run upgrade tests , only for pull requests            | true                |
+| node_version | can be set manually for older versions eg. 16.1.0     | 20.11.0             |
+| reset_commit | Explicitly test a certain version of PKP Application  | -                   |
 
 
 
@@ -100,7 +109,7 @@ Only additional steps from the app configuration are mentioned, for the missing 
 19. `test`: Option to disable validation to reduce test run-time , must be only used to test validation or upgrade
 19. `upgrade`: Option to disable upgrade to reduce test run-time 
 
-## pkp branch integration progress
+### pkp branch integration progress
 | Application | main | Stable-3_4_0 | Stable-3_3_0 |
 |-------------|------|--------------|--------------| 
 | OJS         | x    |              |              | 
