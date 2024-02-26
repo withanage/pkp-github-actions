@@ -15,7 +15,7 @@ export FILESDUMP=~/files.tar.gz # Path and filename where a database dump can be
 
 # Install required software
 sudo apt-get install -q -y libbiblio-citation-parser-perl libhtml-parser-perl
-sudo locale-gen fr_FR.UTF-8
+
 
 # Create the database and grant permissions.
 if [[ "$TEST" == "pgsql" ]]; then
