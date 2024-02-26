@@ -12,8 +12,8 @@ sudo n  $NODE_VERSION
 source ~/.bashrc
 
 # Install node modules
-npm i g -npm
-npm i @vue/cli-service
-npm i cypress
+#npm i g -npm
+#npm i @vue/cli-service
+#npm i cypress@12.17.4
 npm install
 npm run build

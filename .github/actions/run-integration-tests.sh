@@ -6,10 +6,12 @@ export CYPRESS_BASE_URL='http://127.0.0.1:8000'
 export CYPRESS_DBNAME=${APPLICATION} # Database name
 export CYPRESS_DBUSERNAME=${APPLICATION} # Database username
 export CYPRESS_DBPASSWORD=${APPLICATION} # Database password
+export CYPRESS_FILESDIR=files
 
 
 
-cp cypress.travis.env.json cypress.env.json
+#echo '{ "baseUrl": "'${CYPRESS_DBHOST}'", "DBHOST": "localhost", "DBUSERNAME": "'$CYPRESS_DBUSERNAME'","DBPASSWORD": "'$CYPRESS_DBPASSWORD'","DBNAME": "'$CYPRESS_DBNAME'",  "FILESDIR": "'$CYPRESS_FILESDIR'"}' > cypress.env.json
+
 
 npx cypress run --headless --browser chrome --config '{"specPattern":["cypress/tests/data/**/*.cy.js"]}'
 npx cypress run --headless --browser chrome --config '{"specPattern":["lib/pkp/cypress/tests/integration/**/*.cy.js"]}'

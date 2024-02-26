@@ -112,10 +112,10 @@ Only additional steps from the app configuration are mentioned, for the missing 
 ## Branch integration progress
 | Application | main | Stable-3_4_0 | Stable-3_3_0 |
 |-------------|------|--------------|--------------| 
-| OJS         | x    |              |              | 
-| OMP         | x    |              |              | 
-| OPS         | x    |              |              | 
-| pkp-lib     | x    |              |              | 
+| OJS         | x    | x            |              | 
+| OMP         | x    | x            |              | 
+| OPS         | x    | x            |              | 
+| pkp-lib     | x    | x            |              | 
 
 
 ## Next steps
@@ -124,10 +124,38 @@ Only additional steps from the app configuration are mentioned, for the missing 
 - get rid of long variable combination e.g. ${{inputs.application || github.event.repository.name}}
 - Find a github actions way to set the env variables better, in shell scripts we need them explicitly, creating duplication
 
+
+### 3.4
+| PHP Version | db                           |
+|-------------|------------------------------|
+| PHP: 8.0    | TEST=pgsql SAVE_BUILD=true   |
+| PHP: 8.1.0  | TEST=pgsql                   |
+| PHP: 8.0    | TEST=mariadb SAVE_BUILD=true |
+| PHP: 8.1.0  | TEST=mysql SAVE_BUILD=true   |
+| PHP: 8.2.0  | TEST=mysql                   |
+| PHP: 8.2.0  | TEST=pgsql                   |
+| PHP: 8.0    | TEST=mysql                   |
+
+
+### 3.3
+
+| PHP   | db                    |
+|-------|-----------------------|
+| 7.3   | pgsql                 |
+| 7.3   | mysql                 |
+| 7.4   | pgsql                 |
+| 7.4   | mysql                 |
+| 8.0   | validation            |
+| 8.0   | pgsql SAVE_BUILD=true |
+| 8.0   | mysql SAVE_BUILD=true |
+| 8.1   | pgsql                 |
+| 8.1   | mysql                 |
+| 8.2.0 | mysql                 |
+| 8.2.0 | pgsql                 |
+
 References
 -  https://github.blog/2022-05-09-supercharging-github-actions-with-job-summaries/
 
 ## Acknowledgements
 - During the development: chat.openai.com used as a help tool
-
 

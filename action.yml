@@ -16,6 +16,8 @@ inputs:
   upgrade:
     default: true
     required: false
+  upgrade_test:
+    required: false
   node_version:
     default: 20.11.0
   reset_commit:
@@ -30,18 +32,6 @@ runs:
         repository: 'pkp/pkp-github-actions'
         path: pkp-github-actions
         ref: v1
-
-    - name: print
-      id: print
-      run: |
-        
-        {
-          echo " | OS  |PHP| DB|  Node |   "
-          echo "| ---| --- | ---- | ---| "
-          echo "|  :penguin: ${{runner.os}} ${{runner.arch}}   $( lsb_release -i | cut -c 17-) $( lsb_release -c | cut -c 11-) $( lsb_release -r | cut -c 10-)   | ${{matrix.php-version}} | ${{matrix.database}} |  ${{inputs.node_version}} |"
-        } >> $GITHUB_STEP_SUMMARY
-
-      shell: bash
 
     - name: Install postgres server
       if: ${{matrix.database == 'pgsql'}}
@@ -77,19 +67,19 @@ runs:
     - name: Install PKP application for push
       if: ${{  github.event_name  == 'push' &&      (inputs.repository == '' && inputs.application == '' && inputs.branch == '')}}
       run: |
-        git clone -b ${{ github.head_ref || github.ref_name }} https://github.com/${{ github.repository}} ~/${{ github.event.repository.name }}
+        git clone -b ${{ github.head_ref || github.ref_name }} https://github.com/${{ github.repository}} ~/${{ github.event.repository.name }}  --depth 2
       shell: bash
 
     - name: Install PKP application for pull_request
       if:  ${{github.event_name  == 'pull_request' &&    (inputs.repository == '' && inputs.application == '' && inputs.branch == '')}}
       run: |
-        git clone -b ${{ github.event.pull_request.head.ref}} ${{ github.event.pull_request.head.repo.html_url}} ~/${{ github.event.pull_request.head.repo.name }} --depth 1
+        git clone -b ${{ github.event.pull_request.head.ref}} ${{ github.event.pull_request.head.repo.html_url}} ~/${{ github.event.pull_request.head.repo.name }} --depth 2
       shell: bash
 
     - name: Install current application for  external plugins and pkp-lib for push and pull_request
       if:  ${{  inputs.repository != '' && inputs.application != '' && inputs.branch != ''}}
       run: |
-        git clone -b ${{inputs.branch}} https://github.com/${{inputs.repository}}/${{inputs.application}} ~/${{inputs.application}} --depth 1
+        git clone -b ${{inputs.branch}} https://github.com/${{inputs.repository}}/${{inputs.application}} ~/${{inputs.application}} --depth 2
       shell: bash
 
     - name: Reset to a specific commit
@@ -123,6 +113,8 @@ runs:
         git fetch ${{ github.event.pull_request.head.repo.full_name}}  ${{ github.event.pull_request.head.ref}}
         git checkout ${{ github.event.pull_request.head.repo.full_name}}/${{ github.event.pull_request.head.ref}}
       shell: bash
+      env:
+        APPLICATION: ${{inputs.application || github.event.pull_request.head.repo.name || github.event.repository.name }}
 
     - name: Install  dependencies
       run: |
@@ -234,11 +226,11 @@ runs:
 
     - name: Run upgrade tests
       id: upgrade
-      if: ${{  github.event_name  == 'push' && inputs.upgrade == 'true' && (matrix.database == 'pgsql' || matrix.database == 'mysql' ) && (matrix.php-version == '8.1')}}
+      if: ${{  github.event_name  == 'push'  &&  inputs.upgrade == 'true' && inputs.upgrade_test != '' && (matrix.database == 'pgsql' || matrix.database == 'mysql' ) && (matrix.php-version == '8.1')}}
       run: |
         start_time=$(date -u +%s)
-        cd ~/${{inputs.application || github.event.repository.name }} 
-        DATASET_BRANCHES=("stable-3_3_0"  "stable-3_4_0" )
+        cd ~/${{inputs.application || github.event.repository.name }}
+        IFS=',' read -ra DATASET_BRANCHES <<< "${{inputs.upgrade_test}}"
         for DATASET_BRANCH in "${DATASET_BRANCHES[@]}"
         do
           source  ${{ github.workspace }}/pkp-github-actions/.github/actions/prepare-tests.sh
@@ -258,22 +250,32 @@ runs:
     - name: Print summary
       if: always()
       run: |
+        cd ~/$APPLICATION
         {
-          echo " |Step | |:clock4: "
+          echo "#### Tests"
+          echo " |Step |Status |:clock4: |"
           echo "| --- | --- | --- |"
           echo "|  Validation | ${{steps.validation.outputs.status}} |${{steps.validation.outputs.duration}} |"
           echo "|  Integration test | ${{steps.integration-test.outputs.status}} |${{steps.integration-test.outputs.duration}} |"
           echo "|  Unit test | ${{steps.unit-test.outputs.status}} |${{steps.unit-test.outputs.duration}} |"
           echo "|  Upgrade | ${{steps.upgrade.outputs.status}}|${{steps.upgrade.outputs.duration}} |"
+          echo "#### System information"
+          echo " | OS  |PHP| DB|  Node |  "
+          echo "| ---| --- | ---- | --- |"
+          echo "|  :penguin: ${{runner.os}} ${{runner.arch}}   $( lsb_release -i | cut -c 17-) $( lsb_release -c | cut -c 11-) $( lsb_release -r | cut -c 10-)   | ${{matrix.php-version}} | ${{matrix.database}} |  ${{inputs.node_version}} |"
         
+      
+      
         } >> $GITHUB_STEP_SUMMARY
-
       shell: bash
+      env:
+        APPLICATION: ${{inputs.application || github.event.pull_request.head.repo.name || github.event.repository.name }}
+
 
     - uses: actions/upload-artifact@v4
       if: failure()
       with:
-        name: Create Cypess screenshots as artifacts
-        path: ~/${{ inputs.application || github.event.repository.name }}/cypress/screenshots
-        if-no-files-found: ignore
-
+       name: cypress-${{matrix.database }}-${{ matrix.php-version }}
+       path: ~/${{ inputs.application || github.event.repository.name }}/cypress/screenshots
+       if-no-files-found: ignore
+       overwrite: false
