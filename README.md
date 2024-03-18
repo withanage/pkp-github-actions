@@ -57,7 +57,13 @@ and their configuration can be found in the following file_path `.github/workflo
  11.     name: main
  12.     steps:
  13.       - uses: pkp/pkp-github-actions@v1
-        
+ 14.       with :  
+ 15          upgrade_test: 'stable-3_3_0,stable-3_4_0'
+ 16.         node_version: 20
+ 17.         dataset_branch: 'main'
+ 18.         DATASETS_ACCESS_KEY:  ${{secrets.DATASETS_ACCESS_KEY}}
+ 19.         DEBUG_IN_TMATE: false
+                    
 ```
 ### Explanation
 1. Github actions Runs on both `pull` and `pull requests`
@@ -73,6 +79,12 @@ and their configuration can be found in the following file_path `.github/workflo
 11. name: of the action
 12. General definition for steps.  
 13. Default integration is pkp-github-actions for OJS/OMP/OPS applications , but e.g. plugins, may run  extra github actions steps or use external github actions.
+14.  Additional configurations
+15. to which versions the upgrade tests are running
+16. node_version
+17. For updating datasets, we have to define with ojs version, main / 3.4.0 / 3.3.0
+18. Only needed if the datasets get updated.
+19. This opens a tmate session, if any test fails
 ## Example configuration for pkp-lib or plugins
 
 ```yml
