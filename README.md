@@ -27,16 +27,18 @@ and their configuration can be found in the following file_path `.github/workflo
 ### Input variables
 
 
-| Variable     | Description                                           | Default             |
-|--------------|-------------------------------------------------------|---------------------| 
-| repository   | github repository name                                | Current repository  |
-| application  | PKP Application (OJS\| OMP\| OPS)                     | Current application |
-| branch       | git branch                                            | Current branch      |
-| validate     | run valiadtoin tests true\|false                      | true                |
-| test         | run unit and integration tests true\|false            | true                |
-| upgrade      | run upgrade tests , only for pull requests            | true                |
-| node_version | can be set manually for older versions eg. 16.1.0     | 20.11.0             |
-| reset_commit | Explicitly test a certain version of PKP Application  | -                   |
+| Variable     | Description                                                         | Default   |
+|----------------|---------------------------------------------------------------------|-----------| 
+| repository   | github repository name                                              | Current repository |
+| application  | PKP Application (OJS\| OMP\| OPS)                                   | Current application |
+| branch       | git branch                                                          | Current branch |
+| validate     | run valiadtoin tests true\|false                                    | true      |
+| test         | run unit and integration tests true\|false                          | true      |
+| upgrade      | run upgrade tests , only for pull requests                          | true      |
+| node_version | can be set manually for older versions eg. 16.1.0                   | 20        |
+| reset_commit | Explicitly test a certain version of PKP Application                | -         |
+| dataset_branch | Identify the OJS Version: eg.g 3_3_0, 3_4_0,main                    | -         |
+| debug_in_tmate | When a test fails anywhere, opens a tmate session, with ssh-server. |          |
 
 
 
@@ -152,6 +154,80 @@ Only additional steps from the app configuration are mentioned, for the missing 
 | 8.1   | mysql                 |
 | 8.2.0 | mysql                 |
 | 8.2.0 | pgsql                 |
+
+
+
+## Development Scenarios
+
+### Scenario 1: Only Application (ojs/omp/ops)
+
+This scenario  assumes, you are only doing enhancements or bugfixes to ojs,omp or ops
+
+1. Clone branch of  your pkp-application to your development environment
+   `git clone -b stable-3_4_0  https://github.com/pkp/ojs  $MY_PATH/ojs`
+2. Optional: update your pkp-lib and other sub-modules to keep up with changes and include in push commits
+  ` git submodule update --init --recursive -f; git add lib/pkp; git commit -m "Submodule update"`
+3. Commit and push to your local repository
+  
+###  Scenario 1: Only pkp-lib 
+
+This scenario assumes, you are doing overall changes to the pkp-lib repository, which affects ojs, omp and ops.
+
+1. In your application, navigate to the `lib/pkp` folder by running `cd lib/pkp`. After updating the git submodule, your remote source should be configured accordingly.
+`  https://github.com/pkp/pkp-lib`
+2. Add your repository "lib-pkp" as a source.
+ `git remote add your_username https://github.com/your_username/pkp-lib`
+ `git fetch origin stable-3_4_0` 
+ `git checkout -b feature_branch refs/remotes/origin/stable-3_4_0 -f  `
+3. Perform your modifications in the feature branch.
+4.  Push the changes to your pkp-lib repository. Push triggers tests of your changes
+ `git push your_username feature_branch `
+This will trigger   tests against omp,ojs,ops automatically.If you would like to expand or reduce the tests , you can change the application matrix.
+`https://github.com/your_username/pkp-lib/tree/feature_branch/.github/workflows`
+
+ Info: your ojs, omp and ops tests are running against the selected pkp branch. 
+ 
+### Scenatio 4: Application + pkp-lib
+
+Here's the scenario breakdown for each approach:
+
+### Scenario 1: Change GitHub workflow to target repository and branch
+
+1. **Change GitHub Workflow File:**
+   Modify the GitHub workflow file located at:
+   ```
+   https://github.com/your_username/pkp-lib/tree/feature_branch/.github/workflows/stable-3_4_0.yml
+   ```
+   to point  to your repository and the desired branch  is selected.
+
+
+### Scenario 2: Modify .gitmodules file in the application folder of OJS, OMP, OPS
+
+1. **Update .gitmodules File:**
+   Modify the `.gitmodules` file within the application folder of OJS, OMP, OPS.   You would change the URL to point to your repository temporarily for testing purposes.
+   ```
+   [submodule "pkp-lib"]
+       path = pkp-lib
+       url = https://github.com/your_username/pkp-lib.git
+   ```
+   After testing the feature, ensue that you reset this change in final pull request     
+Choose the one that suits your workflow and requirements best.
+
+### Plugin development
+ This is similar to scenario 2 Plugin deve
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 References
 -  https://github.blog/2022-05-09-supercharging-github-actions-with-job-summaries/

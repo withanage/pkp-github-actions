@@ -11,11 +11,6 @@
 
 set -e
 
-export BASEURL="http://localhost" # This is the URL to the installation directory.
-export DBHOST=localhost # Database hostname
-export DBNAME=${APPLICATION} # Database name
-export DBUSERNAME=${APPLICATION} # Database username
-export DBPASSWORD=${APPLICATION} # Database password
 export FILESDIR=files # Files directory (relative to application directory -- do not do this in production!)
 export DATABASEDUMP=database.sql.gz  # Path and filename where a database dump can be created/accessed
 export FILESDUMP=files.tar.gz # Path and filename where a database dump can be created/accessed
@@ -24,8 +19,8 @@ export FILESDUMP=files.tar.gz # Path and filename where a database dump can be c
 tar czf ${FILESDUMP} ${FILESDIR}
 
 # If desired, store the built dataset in https://github.com/pkp/datasets
-if [[ "GITHUB_PULL_REQUEST" == "false" && "$SAVE_BUILD" == "true" ]]; then
-	git clone --depth 1 https://pkp-machine-user:${GITHUB_ACCESS_KEY}@github.com/pkp/datasets
+if [[ "$SAVE_BUILD" == "true" ]]; then
+	git clone --depth 1 https://pkp-machine-user:${DATASETS_ACCESS_KEY}@github.com/pkp/datasets
 	rm -rf datasets/${APPLICATION}/${DATASET_BRANCH}/${TEST}
 	mkdir -p datasets/${APPLICATION}/${DATASET_BRANCH}/${TEST}
 	zcat ${DATABASEDUMP} > datasets/${APPLICATION}/${DATASET_BRANCH}/${TEST}/database.sql
@@ -39,16 +34,20 @@ if [[ "GITHUB_PULL_REQUEST" == "false" && "$SAVE_BUILD" == "true" ]]; then
 	rm -f datasets/${APPLICATION}/${DATASET_BRANCH}/${TEST}/public/.gitignore
 
 	# Add sample export data to the datasets, as appropriate for the app
-	case "$APPLICATION" in
-		ojs) php tools/importExport.php NativeImportExportPlugin export datasets/${APPLICATION}/${DATASET_BRANCH}/${TEST}/native-export-sample.xml publicknowledge issue 1 ;;
-		omp) php tools/importExport.php NativeImportExportPlugin export datasets/${APPLICATION}/${DATASET_BRANCH}/${TEST}/native-export-sample.xml publicknowledge monograph 1 ;;
-		ops) php tools/importExport.php NativeImportExportPlugin export datasets/${APPLICATION}/${DATASET_BRANCH}/${TEST}/native-export-sample.xml publicknowledge preprint 1 ;;
-	esac
+	if [[ "DATASET_BRANCH" == "main" ]]; then
+    case "$APPLICATION" in
+      ojs) php tools/importExport.php NativeImportExportPlugin export datasets/${APPLICATION}/${DATASET_BRANCH}/${TEST}/native-export-sample.xml publicknowledge issue 1 ;;
+      omp) php tools/importExport.php NativeImportExportPlugin export datasets/${APPLICATION}/${DATASET_BRANCH}/${TEST}/native-export-sample.xml publicknowledge monograph 1 ;;
+      ops) php tools/importExport.php NativeImportExportPlugin export datasets/${APPLICATION}/${DATASET_BRANCH}/${TEST}/native-export-sample.xml publicknowledge preprint 1 ;;
+    esac
+  fi
 
 	cd datasets
+	git config --global user.name $GITHUB_ACTOR
 	git add --all
 	git commit -m "Update datasets (${DATASET_BRANCH})"
 	git push
 	cd ..
 fi
+
 

@@ -11,7 +11,7 @@ inputs:
     default: true
     required: false
   validate:
-    default: true
+    default: false
     required: false
   upgrade:
     default: true
@@ -19,10 +19,15 @@ inputs:
   upgrade_test:
     required: false
   node_version:
-    default: 20.11.0
+    default: 20
   reset_commit:
     required: false
-
+  dataset_branch:
+    required: false
+  DEBUG_IN_TMATE:
+    required: false
+  DATASETS_ACCESS_KEY:
+    required: false
 
 runs:
   using: "composite"
@@ -32,7 +37,6 @@ runs:
         repository: 'pkp/pkp-github-actions'
         path: pkp-github-actions
         ref: v1
-
     - name: Install postgres server
       if: ${{matrix.database == 'pgsql'}}
       run: |
@@ -40,6 +44,7 @@ runs:
         sudo dpkg-reconfigure locales
         sudo sed -i -E 's\peer|scram-sha-256\trust\g' /etc/postgresql/14/main/pg_hba.conf
       shell: bash
+
 
     - name: Install mysql server
       if: ${{matrix.database == 'mysql'}}
@@ -55,6 +60,7 @@ runs:
       with:
         mariadb-version: "10.11"
 
+
     - name: Install php environment
       uses: shivammathur/setup-php@v2
       with:
@@ -67,7 +73,7 @@ runs:
     - name: Install PKP application for push
       if: ${{  github.event_name  == 'push' &&      (inputs.repository == '' && inputs.application == '' && inputs.branch == '')}}
       run: |
-        git clone -b ${{ github.head_ref || github.ref_name }} https://github.com/${{ github.repository}} ~/${{ github.event.repository.name }}  --depth 2
+       git clone -b ${{ github.head_ref || github.ref_name }} https://github.com/${{ github.repository}} ~/${{ github.event.repository.name }}  --depth 2
       shell: bash
 
     - name: Install PKP application for pull_request
@@ -94,6 +100,7 @@ runs:
       run: |
         cd ~/${{inputs.application || github.event.pull_request.head.repo.name || github.event.repository.name  }}
         git submodule update --init --recursive
+
       shell: bash
 
     - name : Checkout for  pkp-lib for Push
@@ -167,25 +174,27 @@ runs:
         ${{ github.workspace }}/pkp-github-actions/.github/actions/prepare-tests.sh
       shell: bash
       env:
-        TEST: ${{matrix.database}}
         APPLICATION: ${{inputs.application || github.event.repository.name}}
+        TEST: ${{matrix.database}}
 
-    - name: Run  integration tests
-      id: integration-test
+    - name: Run  data integration tests
+      id: data-integration-tests
       if: ${{ inputs.test == 'true'}}
       run: |
         start_time=$(date -u +%s)
         echo "status=:red_circle:" >> $GITHUB_OUTPUT
         cd ~/${{inputs.application || github.event.repository.name }}
-        ${{ github.workspace }}/pkp-github-actions/.github/actions/run-integration-tests.sh
+        ${{ github.workspace }}/pkp-github-actions/.github/actions/run-data-integration-tests.sh
         duration=$(date -d@$(($(date -u +%s) - $start_time)) -u +%H:%M:%S) 
         echo "duration=$duration" >> $GITHUB_OUTPUT
         echo "status=:white_check_mark:" >> $GITHUB_OUTPUT
       shell: bash
       env:
+        APPLICATION: ${{inputs.application || github.event.repository.name}}
         BASEURL: http://localhost
         CYPRESS_DBTYPE: ${{matrix.database=='pgsql' && 'PostgreSQL' || 'MySQLi'}}
-        APPLICATION: ${{inputs.application || github.event.repository.name}}
+        NODE_VERSION: ${{inputs.node_version}}
+
 
     - name: Dump database
       run: |
@@ -196,6 +205,38 @@ runs:
         APPLICATION: ${{inputs.application || github.event.repository.name}}
         DBTYPE: ${{matrix.database=='pgsql' && 'PostgreSQL' || 'MySQLi'}}
 
+    - name: Upload datasets
+      if: ${{ inputs.dataset_branch != '' &&  github.event_name  == 'push'}}
+      run: |
+        cd ~/${{inputs.application || github.event.repository.name }}
+        ${{ github.workspace }}/pkp-github-actions/.github/actions/upload-to-datasets-repository.sh
+
+      shell: bash
+      env:
+        APPLICATION: ${{inputs.application || github.event.repository.name}}
+        TEST: ${{matrix.database}}
+        SAVE_BUILD: true
+        DATASET_BRANCH: ${{inputs.dataset_branch}}
+        DATASETS_ACCESS_KEY: ${{inputs.DATASETS_ACCESS_KEY}}
+
+    - name: Run  pkp-lib integration tests
+      id: pkp-lib-and-plugin-integration-tests
+      if: ${{ inputs.test == 'true'}}
+      run: |
+        start_time=$(date -u +%s)
+        echo "status=:red_circle:" >> $GITHUB_OUTPUT
+        cd ~/${{inputs.application || github.event.repository.name }}
+        ${{ github.workspace }}/pkp-github-actions/.github/actions/run-pkp-lib-and-plugin-integration-tests.sh
+        duration=$(date -d@$(($(date -u +%s) - $start_time)) -u +%H:%M:%S) 
+        echo "duration=$duration" >> $GITHUB_OUTPUT
+        echo "status=:white_check_mark:" >> $GITHUB_OUTPUT
+      shell: bash
+      env:
+        APPLICATION: ${{inputs.application || github.event.repository.name}}
+        BASEURL: http://localhost
+        CYPRESS_DBTYPE: ${{matrix.database=='pgsql' && 'PostgreSQL' || 'MySQLi'}}
+        NODE_VERSION: ${{inputs.node_version}}
+
     - name: Run unit tests
       id: unit-test
       if: ${{ inputs.test == 'true' }}
@@ -203,7 +244,11 @@ runs:
         start_time=$(date -u +%s)
         echo "status=:red_circle:" >> $GITHUB_OUTPUT
         cd ~/${{inputs.application || github.event.repository.name }} 
-         ${{ github.workspace }}/pkp-github-actions/.github/actions/runAllTests.sh -CcPpdR
+        
+        ${{ github.workspace }}/pkp-github-actions/.github/actions/run-unit-tests.sh -CcPpdR
+        ${{ github.workspace }}/pkp-github-actions/.github/actions/run-unit-tests.sh -CcPpd
+        
+        
         duration=$(date -d@$(($(date -u +%s) - $start_time)) -u +%H:%M:%S) 
         echo "duration=$duration" >> $GITHUB_OUTPUT
         echo "status=:white_check_mark:" >> $GITHUB_OUTPUT
@@ -211,7 +256,8 @@ runs:
       env:
         TEST: ${{matrix.database}}
         APPLICATION: ${{inputs.application || github.event.repository.name}}
-        DBTYPE: ${{matrix.database == 'pgsql' && 'PostgreSQL' || 'MySQLi'}}
+        DB TYPE: ${{matrix.database == 'pgsql' && 'PostgreSQL' || 'MySQLi'}}
+        NODE_VERSION: ${{inputs.node_version}}
 
     - name: Download datasets
       if: ${{  github.event_name  == 'pull_request' &&  inputs.upgrade == 'true'}}
@@ -220,8 +266,8 @@ runs:
         git clone https://github.com/pkp/datasets --depth 1
       shell: bash
       env:
-        DBTYPE: ${{matrix.database == 'pgsql' && 'PostgreSQL' || 'MySQLi'}}
         DATABASEDUMP: database.sql.gz
+        DBTYPE: ${{matrix.database == 'pgsql' && 'PostgreSQL' || 'MySQLi'}}
         FILESDUMP: files.tar.gz
 
     - name: Run upgrade tests
@@ -241,10 +287,10 @@ runs:
         echo "duration=$duration" >> $GITHUB_OUTPUT
         echo "status=:white_check_mark:" >> $GITHUB_OUTPUT
       env:
-        TEST: ${{matrix.database}}
-        DBTYPE: ${{matrix.database == 'pgsql' && 'PostgreSQL' || 'MySQLi'}}
         APPLICATION: ${{inputs.application || github.event.repository.name}}
         DATASET_BRANCH: ${DATASET_BRANCH}
+        DBTYPE: ${{matrix.database == 'pgsql' && 'PostgreSQL' || 'MySQLi'}}
+        TEST: ${{matrix.database}}
       shell: bash
 
     - name: Print summary
@@ -256,7 +302,8 @@ runs:
           echo " |Step |Status |:clock4: |"
           echo "| --- | --- | --- |"
           echo "|  Validation | ${{steps.validation.outputs.status}} |${{steps.validation.outputs.duration}} |"
-          echo "|  Integration test | ${{steps.integration-test.outputs.status}} |${{steps.integration-test.outputs.duration}} |"
+          echo "|  Cypress data integration tests | ${{steps.data-integration-tests.outputs.status}} |${{steps.data-integration-tests.outputs.duration}} |"
+          echo "|  Cypress integration tests | ${{steps.pkp-lib-and-plugin-integration-tests.outputs.status}} |${{steps.pkp-lib-and-plugin-integration-tests.outputs.duration}} |"
           echo "|  Unit test | ${{steps.unit-test.outputs.status}} |${{steps.unit-test.outputs.duration}} |"
           echo "|  Upgrade | ${{steps.upgrade.outputs.status}}|${{steps.upgrade.outputs.duration}} |"
           echo "#### System information"
@@ -279,3 +326,14 @@ runs:
        path: ~/${{ inputs.application || github.event.repository.name }}/cypress/screenshots
        if-no-files-found: ignore
        overwrite: false
+    - uses: actions/upload-artifact@v4
+      if: failure()
+      with:
+        name: ${{matrix.database }}-${{ matrix.php-version }}-http-access.log
+        path: ~/${{ inputs.application || github.event.repository.name }}/access.log
+        overwrite: false
+
+    - name: Setup tmate session
+      if: ${{ failure() && inputs.DEBUG_IN_TMATE == 'true' }}
+      uses: mxschmitt/action-tmate@v3
+
