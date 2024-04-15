@@ -4,14 +4,15 @@
     -   [Default configuration for
         OJS/OMP/OPS](#default-configuration-for-ojsompops)
         -   [Explanation](#explanation)
-    -   [Example configuration for pkp-lib or
-        plugins](#example-configuration-for-pkp-lib-or-plugins)
-        -   [Explanation](#explanation-1)
-    -   [Branch integration progress](#branch-integration-progress)
-    -   [Next steps](#next-steps)
+    -   [Development Scenarios](#development-scenarios)
+        -   [Scenario 1: Only Application
+            (ojs/omp/ops)](#scenario-1-only-application-ojsompops)
+        -   [Scenario 2: Only pkp-lib](#scenario-2-only-pkp-lib)
+        -   [Scenario 3: Application +
+            pkp-lib](#scenario-3-application--pkp-lib)
+    -   [Integration matrix](#integration-matrix)
+    -   [References](#references)
     -   [Acknowledgements](#acknowledgements)
-
-
 # PKP Github actions 
 
 The PKP GitHub Actions facilitate automated testing for continuous integration within OJS, OMP, and OPS.
@@ -96,9 +97,75 @@ and their configuration can be found in the following file_path `.github/workflo
 
 
 
-### Integration matrix
 
- |  Branch |Test-Type| PHP     | Database | DATASET_BRANCH | SAVE_BUILD | Container |
+## Development Scenarios
+
+### Scenario 1: Only Application (ojs/omp/ops)
+
+This scenario  assumes, you are only doing enhancements or bugfixes to ojs,omp or ops
+
+1. Clone branch of  your pkp-application to your development environment
+   `git clone -b stable-3_4_0  https://github.com/pkp/ojs  $MY_PATH/ojs`
+2. Optional: update your pkp-lib and other sub-modules to keep up with changes and include in push commits
+  ` git submodule update --init --recursive -f; git add lib/pkp; git commit -m "Submodule update"`
+3. Commit and push to your local repository
+4. Create your PR to  https://github.com/pkp/$application
+  
+###  Scenario 2: Only pkp-lib 
+
+This scenario assumes, you are doing overall changes to the pkp-lib repository, which affects ojs, omp and ops.
+
+1. In your application, navigate to the `lib/pkp` folder by running `cd lib/pkp`. After updating the git submodule, your remote source should be configured accordingly.
+`  https://github.com/pkp/pkp-lib`
+2. Add your repository "lib-pkp" as a source.
+ `git remote add your_username https://github.com/your_username/pkp-lib`
+ `git fetch origin stable-3_4_0` 
+ `git checkout -b feature_branch refs/remotes/origin/stable-3_4_0  `
+3. Perform your modifications in the feature branch.
+4.  Push the changes to your pkp-lib repository. Push triggers tests of your changes
+ `git push your_username feature_branch `
+This will trigger   tests against omp,ojs,ops automatically.If you would like to expand or reduce the tests , you can change the application matrix.
+`https://github.com/your_username/pkp-lib/tree/feature_branch/.github/workflows`
+
+ Info: your ojs, omp and ops tests are running against the selected pkp branch. 
+ 
+### Scenario 3: Application + pkp-lib
+
+If you are changing  both the pkp-lib and the application, follow one of the following strategies.
+#### Step 1: Modify .gitmodules file in the application folder of OJS, OMP, OPS
+1. **Update .gitmodules File:**
+Modify the `.gitmodules` file within the application folder of OJS, OMP, OPS.   You would change the URL to point to your repository temporarily for testing purposes.
+```
+[submodule "pkp-lib"]
+       path = pkp-lib
+       url = https://github.com/your_username/pkp-lib.git
+       branch = my-feature-branch
+```
+
+Commits to your repository will trigger the tests automatically.
+
+
+#### Step 2 : Change GitHub workflow to target repository and branch
+
+1. **Change GitHub Workflow File in pkp-lb:**
+E.g. Modify the GitHub workflow file located and commit to pkp-lin:
+https://github.com/your_username/pkp-lib/tree/feature_branch/.github/workflows/stable-3_4_0.yml
+```
+steps:
+      - uses: xmlFlow/pkp-github-actions@v1
+        with:
+          repository:your_username
+          branch = my-feature-branch
+```
+
+#### Pull Request      
+1. First create the PR against the pkp-lib
+2. Then create the application PRs
+
+
+## Integration matrix
+
+|  Branch |Test-Type| PHP     | Database | DATASET_BRANCH | SAVE_BUILD | Container |
 |----------| -- |---------|---------|----------------|------------|-----------|
  main     |validation| 8.1     |         |                |            | 1         | 
  main     |test| 8.1     | pgsql   |                | x          | 2         |
@@ -143,73 +210,8 @@ and their configuration can be found in the following file_path `.github/workflo
  3.3      |test| 8.2     | pgsql   |                | | 11        |
 
 
-## Development Scenarios
 
-### Scenario 1: Only Application (ojs/omp/ops)
-
-This scenario  assumes, you are only doing enhancements or bugfixes to ojs,omp or ops
-
-1. Clone branch of  your pkp-application to your development environment
-   `git clone -b stable-3_4_0  https://github.com/pkp/ojs  $MY_PATH/ojs`
-2. Optional: update your pkp-lib and other sub-modules to keep up with changes and include in push commits
-  ` git submodule update --init --recursive -f; git add lib/pkp; git commit -m "Submodule update"`
-3. Commit and push to your local repository
-4. Create your PR to  https://github.com/pkp/$application
-  
-###  Scenario 1: Only pkp-lib 
-
-This scenario assumes, you are doing overall changes to the pkp-lib repository, which affects ojs, omp and ops.
-
-1. In your application, navigate to the `lib/pkp` folder by running `cd lib/pkp`. After updating the git submodule, your remote source should be configured accordingly.
-`  https://github.com/pkp/pkp-lib`
-2. Add your repository "lib-pkp" as a source.
- `git remote add your_username https://github.com/your_username/pkp-lib`
- `git fetch origin stable-3_4_0` 
- `git checkout -b feature_branch refs/remotes/origin/stable-3_4_0  `
-3. Perform your modifications in the feature branch.
-4.  Push the changes to your pkp-lib repository. Push triggers tests of your changes
- `git push your_username feature_branch `
-This will trigger   tests against omp,ojs,ops automatically.If you would like to expand or reduce the tests , you can change the application matrix.
-`https://github.com/your_username/pkp-lib/tree/feature_branch/.github/workflows`
-
- Info: your ojs, omp and ops tests are running against the selected pkp branch. 
- 
-### Scenario 4: Application + pkp-lib
-
-If you are changing  both the pkp-lib and the application, follow one of the following strategies.
-#### Step 1: Modify .gitmodules file in the application folder of OJS, OMP, OPS
-1. **Update .gitmodules File:**
-Modify the `.gitmodules` file within the application folder of OJS, OMP, OPS.   You would change the URL to point to your repository temporarily for testing purposes.
-```
-[submodule "pkp-lib"]
-       path = pkp-lib
-       url = https://github.com/your_username/pkp-lib.git
-       branch = my-feature-branch
-```
-
-Commits to your repository will trigger the tests automatically.
-
-
-#### Step 2 : Change GitHub workflow to target repository and branch
-
-1. **Change GitHub Workflow File in pkp-lb:**
-E.g. Modify the GitHub workflow file located and commit to pkp-lin:
-https://github.com/your_username/pkp-lib/tree/feature_branch/.github/workflows/stable-3_4_0.yml
-```
-steps:
-      - uses: xmlFlow/pkp-github-actions@v1
-        with:
-          repository:your_username
-          branch = my-feature-branch
-```
-
-#### Pull Request      
-1. First create the PR against the pkp-lib
-2. Then create the application PRs
-
-
-
-References
+## References
 -  https://github.blog/2022-05-09-supercharging-github-actions-with-job-summaries/
 
 ## Acknowledgements
