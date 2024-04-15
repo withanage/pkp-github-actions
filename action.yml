@@ -31,7 +31,7 @@ runs:
   steps:
     - uses: actions/checkout@v4
       with:
-        repository: 'xmlFlow/pkp-github-actions'
+        repository: 'pkp/pkp-github-actions'
         path: pkp-github-actions
         ref: v1
 
