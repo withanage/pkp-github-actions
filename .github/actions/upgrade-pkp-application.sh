@@ -1,10 +1,11 @@
 #!/bin/bash
+
 set -e
 
 export DBHOST=localhost # Database hostname
-export DBNAME=${APPLICATION} # Database name
-export DBUSERNAME=${APPLICATION} # Database username
-export DBPASSWORD=${APPLICATION} # Database password
+export DBNAME=${APPLICATION}-ci # Database name
+export DBUSERNAME=${APPLICATION}-ci # Database username
+export DBPASSWORD=${APPLICATION}-ci # Database password
 
 
 cp -rf datasets/${APPLICATION}/${DATASET_BRANCH}/${TEST}/files/* files/

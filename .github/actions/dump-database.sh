@@ -5,11 +5,11 @@
 set -e # Fail on first error
 
 export DBHOST=localhost # Database hostname
-export DBNAME=${APPLICATION} # Database name
-export DBUSERNAME=${APPLICATION} # Database username
-export DBPASSWORD=${APPLICATION} # Database password
+export DBNAME=${APPLICATION}-ci # Database name
+export DBUSERNAME=${APPLICATION}-ci # Database username
+export DBPASSWORD=${APPLICATION}-ci # Database password
 export DATABASEDUMP=database.sql.gz # Path and filename where a database dump can be created/accessed
-export FILESDUMP=~/files.tar.gz # Path and filename where a database dump can be created/accessed
+export FILESDUMP=files.tar.gz # Path and filename where a database dump can be created/accessed
 export DBTYPE=${DBTYPE}
 
 

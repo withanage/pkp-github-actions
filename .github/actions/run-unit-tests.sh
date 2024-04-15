@@ -13,12 +13,13 @@
 # Some tests will certain require environment variables in order to cnfigure
 # Set  environment variables.
 export DBHOST=localhost # Database hostname
-export DBNAME=${APPLICATION} # Database name
-export DBUSERNAME=${APPLICATION} # Database username
-export DBPASSWORD=${APPLICATION} # Database password
+export DBNAME=${APPLICATION}-ci # Database name
+export DBUSERNAME=${APPLICATION}-ci # Database username
+export DBPASSWORD=${APPLICATION}-ci # Database password
 export FILESDIR=files # Files directory (relative to application directory -- do not do this in production!)
-export DATABASEDUMP=database.sql.gz  # Path and filename where a database dump can be created/accessed
+export DATABASEDUMP=database.sql.gz # Path and filename where a database dump can be created/accessed
 export FILESDUMP=files.tar.gz # Path and filename where a database dump can be created/accessed
+
 
 set -e # Fail on first error
 
@@ -62,6 +63,7 @@ if [[ "$NODE_VERSION" -gt "15"  ]]; then
   			;;
   	esac
   done
+
   PHPUNIT='php lib/pkp/lib/vendor/phpunit/phpunit/phpunit --configuration lib/pkp/tests/phpunit.xml --testdox --no-interaction'
 
   # Where to look for tests
