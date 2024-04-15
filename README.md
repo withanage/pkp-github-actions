@@ -98,7 +98,7 @@ and their configuration can be found in the following file_path `.github/workflo
 
 ### Integration matrix
 
- # Branch |Test-Type| PHP     | Database | DATASET_BRANCH | SAVE_BUILD | Container |
+ |  Branch |Test-Type| PHP     | Database | DATASET_BRANCH | SAVE_BUILD | Container |
 |----------| -- |---------|---------|----------------|------------|-----------|
  main     |validation| 8.1     |         |                |            | 1         | 
  main     |test| 8.1     | pgsql   |                | x          | 2         |
@@ -110,7 +110,7 @@ and their configuration can be found in the following file_path `.github/workflo
  main     |upgrade| 8.1     | mysql   | stable-3_3_0   |            | 1         
  main     |upgrade| 8.1     | pgsql   | stable-3_4_0   |            | 6         
  main     |upgrade| 8.1     | pgsql   | stable-3_3_0   |            | 6         
-| ---    | ----  | ----| ----| ----| ----| ---- |
+| ---      | ----  | ----| ----| ----| ----| ---- |
  3.4      |validation| 8       |         |                |            | 1         
  3.4      |test| 8       | pgsql   |                | x          | 2         
  3.4      |test| 8.1     | pgsql   |                |            | 3         
@@ -129,8 +129,8 @@ and their configuration can be found in the following file_path `.github/workflo
  3.4      |upgrade| 8       | pgsql   | stable-3_2_0   |            | 7         
  3.4      |upgrade| 8       | pgsql   | stable-3_2_1   |            | 7         
  3.4      |upgrade| 8       | pgsql   | stable-3_3_0   |            | 7         
-| ---    | ----  | ----| ----| ----| ----| ---- | 
-3.3      |validation| 8       |         |                |            | 1         |
+| ---      | ----  | ----| ----| ----| ----| ---- | 
+ 3.3      |validation| 8       |         |                |            | 1         |
  3.3      |test| 7.3     | pgsql   |                |            | 2         
  3.3      |test| 7.3     | mysql   |                |            | 3         
  3.3      |test| 7.4     | pgsql   |                |            | 4         
