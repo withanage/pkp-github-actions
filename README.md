@@ -45,24 +45,28 @@ and their configuration can be found in the following file_path `.github/workflo
 ##  Default configuration for OJS/OMP/OPS
 ```yml
  1. on: [push, pull_request]
- 2. name: main
+ 2. name: ojs
  3. jobs:
  4.   main:
  5.     runs-on: ubuntu-latest
  6.     strategy:
  7.       fail-fast: false
  8.       matrix:
- 9.         database: ['mysql','pgsql','mariadb']
- 10.         php-version: [ '8.1','8.2']
- 11.     name: main
- 12.     steps:
- 13.       - uses: pkp/pkp-github-actions@v1
- 14.       with :  
- 15          upgrade_test: 'stable-3_3_0,stable-3_4_0'
- 16.         node_version: 20
- 17.         dataset_branch: 'main'
- 18.         DATASETS_ACCESS_KEY:  ${{secrets.DATASETS_ACCESS_KEY}}
- 19.         DEBUG_IN_TMATE: false
+ 9.         include:
+10.           - php-version: 8.1
+11.             validate: 'validate'
+12.           - php-version: 8.1
+13.             database: pgsql
+14.             test: 'upgrade'
+15.             upgrade_test: '3.1.0,3.1.1-2,
+16.     name: ojs
+17.     steps:
+18.       - uses: pkp/pkp-github-actions@v1
+19.       with :  
+20.         node_version: 20
+21.         dataset_branch: 'main'
+22.         DATASETS_ACCESS_KEY:  ${{secrets.DATASETS_ACCESS_KEY}}
+23.         DEBUG_IN_TMATE: false
                     
 ```
 ### Explanation
@@ -74,99 +78,69 @@ and their configuration can be found in the following file_path `.github/workflo
 6. defines the strategy of the current job
 7. Run all the  jobs in matrix  independently
 8. `matrix` configuration: defines the number of runners
-9.  tested database types for pkp applications
-10. Currently tested PHP versions. This may be different for different branches
-11. name: of the action
-12. General definition for steps.  
-13. Default integration is pkp-github-actions for OJS/OMP/OPS applications , but e.g. plugins, may run  extra github actions steps or use external github actions.
-14.  Additional configurations
-15. to which versions the upgrade tests are running
-16. node_version
-17. For updating datasets, we have to define with ojs version, main / 3.4.0 / 3.3.0
-18. Only needed if the datasets get updated.
-19. This opens a tmate session, if any test fails
-## Example configuration for pkp-lib or plugins
-
-```yml
- 1. on: [push, pull_request]
- 2. name: pkp-lib
- 3. jobs:
- 4.   pkp-lib:
- 5.     runs-on: ubuntu-latest
- 6.     strategy:
- 7.       fail-fast: false
- 8.       matrix:
- 9.         application: ['omp','ojs','ops']
- 10.         database: ['pgsql','mysql','mariadb']
- 11.         php-version: [ '8.1','8.2']
- 12.     name: pkp-lib
- 13.     steps:
- 14.       - uses: pkp/pkp-github-actions@v1
- 15.         with:
- 16.           application:  ${{matrix.application}}
- 17.           repository: pkp
- 18.           branch: 'main'
- 19.           validate: true
- 20.           test: true
- 21.           upgrade: true
-
-```
-### Explanation
-
-Only additional steps from the app configuration are mentioned, for the missing descriptions, see the application example
-
-9.  `matrix` is extended for testing applications. In pkp-lib, all the applications are tested. A plugin developer may exclude, some applications
-16. Read the `application` variable from the matrix
-17. `repository`: default for pkp-lib is pkp, developers may set their `own repository
-18. `branch` : targeted branch of the pkp-application, e.g.main. 
-19. `validate`: Option to disable validation to reduce test run-time 
-19. `test`: Option to disable validation to reduce test run-time , must be only used to test validation or upgrade
-19. `upgrade`: Option to disable upgrade to reduce test run-time 
-
-## Branch integration progress
-| Application | main | Stable-3_4_0 | Stable-3_3_0 |
-|-------------|------|--------------|--------------| 
-| OJS         | x    | x            |              | 
-| OMP         | x    | x            |              | 
-| OPS         | x    | x            |              | 
-| pkp-lib     | x    | x            |              | 
+9.  included tests
+10. 1. Test - Currently tested PHP version
+11. 1. Test - currently tested action type (validate| test| upgrade)12Test - Currently tested PHP version
+12. 2. Test - Currently tested PHP version
+13. Test - currently  database type (mysql | pgsql | mariadb) 
+14. 2. Test - currently tested action type (validate| test| upgrade)
+15.  2. Test - Upgrade tests from earlier versions
+16. name: of the action 
+17. General definition for steps
+18. Default integration is pkp-github-actions for OJS/OMP/OPS applications , but e.g. plugins, may run  extra github actions steps or use external github actions. 
+19. Additional configurations 
+20. node_version
+21. For updating datasets, we have to define with ojs version, main / 3.4.0 / 3.3.0
+22. Only needed if the datasets get saved to the  pkp/datasets, will only used for pkp-machine-user
+23. This opens a tmate session, if any test fails
 
 
-## Next steps
 
-- remove additional variables
-- get rid of long variable combination e.g. ${{inputs.application || github.event.repository.name}}
-- Find a github actions way to set the env variables better, in shell scripts we need them explicitly, creating duplication
+### Integration matrix
 
-
-### 3.4
-| PHP Version | db                           |
-|-------------|------------------------------|
-| PHP: 8.0    | TEST=pgsql SAVE_BUILD=true   |
-| PHP: 8.1.0  | TEST=pgsql                   |
-| PHP: 8.0    | TEST=mariadb SAVE_BUILD=true |
-| PHP: 8.1.0  | TEST=mysql SAVE_BUILD=true   |
-| PHP: 8.2.0  | TEST=mysql                   |
-| PHP: 8.2.0  | TEST=pgsql                   |
-| PHP: 8.0    | TEST=mysql                   |
-
-
-### 3.3
-
-| PHP   | db                    |
-|-------|-----------------------|
-| 7.3   | pgsql                 |
-| 7.3   | mysql                 |
-| 7.4   | pgsql                 |
-| 7.4   | mysql                 |
-| 8.0   | validation            |
-| 8.0   | pgsql SAVE_BUILD=true |
-| 8.0   | mysql SAVE_BUILD=true |
-| 8.1   | pgsql                 |
-| 8.1   | mysql                 |
-| 8.2.0 | mysql                 |
-| 8.2.0 | pgsql                 |
-
+ # Branch |Test-Type| PHP     | Database | DATASET_BRANCH | SAVE_BUILD | Container |
+|----------| -- |---------|---------|----------------|------------|-----------|
+ main     |validation| 8.1     |         |                |            | 1         | 
+ main     |test| 8.1     | pgsql   |                | x          | 2         |
+ main     |test| 8.1     | mariadb |                | x          | 3         
+ main     |test| 8.1     | mysql   |                | x          | 1         
+ main     |test| 8.2     | mysql   |                |            | 5         
+ main     |test| 8.2     | pgsql   |                |            | 6         |
+ main     |upgrade| 8.1     | mysql   | stable-3_4_0   |            | 1         
+ main     |upgrade| 8.1     | mysql   | stable-3_3_0   |            | 1         
+ main     |upgrade| 8.1     | pgsql   | stable-3_4_0   |            | 6         
+ main     |upgrade| 8.1     | pgsql   | stable-3_3_0   |            | 6         
+| ---    | ----  | ----| ----| ----| ----| ---- |
+ 3.4      |validation| 8       |         |                |            | 1         
+ 3.4      |test| 8       | pgsql   |                | x          | 2         
+ 3.4      |test| 8.1     | pgsql   |                |            | 3         
+ 3.4      |test| 8       | mariadb |                | x          | 4         
+ 3.4      |test| 8.1     | mysql   |                | x          | 5         |       
+ 3.4      |test| 8.2     | mysql   |                |            | 6         
+ 3.4      |test| 8.2     | pgsql   |                |            | 7         
+ 3.4      |test| | 8|  mysql                        |            | 8         
+ 3.4      |upgrade| 8       | mysql   | 3.1.0          |            | 8         
+ 3.4      |upgrade| 8       | mysql   | 3.1.1-2        |            | 8         
+ 3.4      |upgrade| 8       | mysql   | 3.1.2          |            | 8         
+ 3.4      |upgrade| 8       | mysql   | stable-3_2_0   |            | 8         
+ 3.4      |upgrade| 8       | mysql   | stable-3_2_1   |            | 8         
+ 3.4      |upgrade| 8       | mysql   | stable-3_3_0   |            | 8         
+ 3.4      |upgrade| 8       | pgsql   | 3.1.0          |            | 7         
+ 3.4      |upgrade| 8       | pgsql   | stable-3_2_0   |            | 7         
+ 3.4      |upgrade| 8       | pgsql   | stable-3_2_1   |            | 7         
+ 3.4      |upgrade| 8       | pgsql   | stable-3_3_0   |            | 7         
+| ---    | ----  | ----| ----| ----| ----| ---- | 
+3.3      |validation| 8       |         |                |            | 1         |
+ 3.3      |test| 7.3     | pgsql   |                |            | 2         
+ 3.3      |test| 7.3     | mysql   |                |            | 3         
+ 3.3      |test| 7.4     | pgsql   |                |            | 4         
+ 3.3      |test| 7.4     | mysql   |                |            | 5         
+ 3.3      |test| 8       | pgsql   |                | x          | 6         
+ 3.3      |test| 8       | mysql   |                | x          | 7         
+ 3.3      |test| 8.1     | pgsql   |                |            | 8         
+ 3.3      |test| 8.1     | mysql   |                |            | 9         |
+ 3.3      |test| 8.2     | mysql   |                |            | 10        | 
+ 3.3      |test| 8.2     | pgsql   |                | | 11        |
 
 
 ## Development Scenarios
@@ -180,6 +154,7 @@ This scenario  assumes, you are only doing enhancements or bugfixes to ojs,omp o
 2. Optional: update your pkp-lib and other sub-modules to keep up with changes and include in push commits
   ` git submodule update --init --recursive -f; git add lib/pkp; git commit -m "Submodule update"`
 3. Commit and push to your local repository
+4. Create your PR to  https://github.com/pkp/$application
   
 ###  Scenario 1: Only pkp-lib 
 
@@ -190,7 +165,7 @@ This scenario assumes, you are doing overall changes to the pkp-lib repository, 
 2. Add your repository "lib-pkp" as a source.
  `git remote add your_username https://github.com/your_username/pkp-lib`
  `git fetch origin stable-3_4_0` 
- `git checkout -b feature_branch refs/remotes/origin/stable-3_4_0 -f  `
+ `git checkout -b feature_branch refs/remotes/origin/stable-3_4_0  `
 3. Perform your modifications in the feature branch.
 4.  Push the changes to your pkp-lib repository. Push triggers tests of your changes
  `git push your_username feature_branch `
@@ -199,45 +174,38 @@ This will trigger   tests against omp,ojs,ops automatically.If you would like to
 
  Info: your ojs, omp and ops tests are running against the selected pkp branch. 
  
-### Scenatio 4: Application + pkp-lib
+### Scenario 4: Application + pkp-lib
 
-Here's the scenario breakdown for each approach:
-
-### Scenario 1: Change GitHub workflow to target repository and branch
-
-1. **Change GitHub Workflow File:**
-   Modify the GitHub workflow file located at:
-   ```
-   https://github.com/your_username/pkp-lib/tree/feature_branch/.github/workflows/stable-3_4_0.yml
-   ```
-   to point  to your repository and the desired branch  is selected.
-
-
-### Scenario 2: Modify .gitmodules file in the application folder of OJS, OMP, OPS
-
+If you are changing  both the pkp-lib and the application, follow one of the following strategies.
+#### Step 1: Modify .gitmodules file in the application folder of OJS, OMP, OPS
 1. **Update .gitmodules File:**
-   Modify the `.gitmodules` file within the application folder of OJS, OMP, OPS.   You would change the URL to point to your repository temporarily for testing purposes.
-   ```
-   [submodule "pkp-lib"]
+Modify the `.gitmodules` file within the application folder of OJS, OMP, OPS.   You would change the URL to point to your repository temporarily for testing purposes.
+```
+[submodule "pkp-lib"]
        path = pkp-lib
        url = https://github.com/your_username/pkp-lib.git
-   ```
-   After testing the feature, ensue that you reset this change in final pull request     
-Choose the one that suits your workflow and requirements best.
+       branch = my-feature-branch
+```
 
-### Plugin development
- This is similar to scenario 2 Plugin deve
+Commits to your repository will trigger the tests automatically.
 
 
+#### Step 2 : Change GitHub workflow to target repository and branch
 
+1. **Change GitHub Workflow File in pkp-lb:**
+E.g. Modify the GitHub workflow file located and commit to pkp-lin:
+https://github.com/your_username/pkp-lib/tree/feature_branch/.github/workflows/stable-3_4_0.yml
+```
+steps:
+      - uses: xmlFlow/pkp-github-actions@v1
+        with:
+          repository:your_username
+          branch = my-feature-branch
+```
 
-
-
-
-
-
-
-
+#### Pull Request      
+1. First create the PR against the pkp-lib
+2. Then create the application PRs
 
 
 
@@ -246,4 +214,8 @@ References
 
 ## Acknowledgements
 - During the development: chat.openai.com used as a help tool
+
+## TODO
+- Untittests with R
+- 
 

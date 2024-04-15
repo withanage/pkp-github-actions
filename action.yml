@@ -10,11 +10,8 @@ inputs:
   test:
     default: true
     required: false
-  validate:
-    default: false
-    required: false
   upgrade:
-    default: true
+    default: false
     required: false
   upgrade_test:
     required: false
@@ -34,9 +31,10 @@ runs:
   steps:
     - uses: actions/checkout@v4
       with:
-        repository: 'pkp/pkp-github-actions'
+        repository: 'xmlFlow/pkp-github-actions'
         path: pkp-github-actions
         ref: v1
+
     - name: Install postgres server
       if: ${{matrix.database == 'pgsql'}}
       run: |
@@ -71,34 +69,34 @@ runs:
         update: true
 
     - name: Install PKP application for push
-      if: ${{  github.event_name  == 'push' &&      (inputs.repository == '' && inputs.application == '' && inputs.branch == '')}}
+      if: ${{  github.event_name  == 'push' &&      (inputs.repository == '' && (matrix.application ||  inputs.application) == '' && inputs.branch == '')}}
       run: |
-       git clone -b ${{ github.head_ref || github.ref_name }} https://github.com/${{ github.repository}} ~/${{ github.event.repository.name }}  --depth 2
+       git clone -b ${{ github.head_ref || github.ref_name }} https://github.com/${{ github.repository}} ~/${{ github.event.repository.name }}  --depth 50
       shell: bash
 
     - name: Install PKP application for pull_request
-      if:  ${{github.event_name  == 'pull_request' &&    (inputs.repository == '' && inputs.application == '' && inputs.branch == '')}}
+      if:  ${{github.event_name  == 'pull_request' &&    (inputs.repository == '' && (matrix.application ||  inputs.application) == '' && inputs.branch == '')}}
       run: |
-        git clone -b ${{ github.event.pull_request.head.ref}} ${{ github.event.pull_request.head.repo.html_url}} ~/${{ github.event.pull_request.head.repo.name }} --depth 2
+        git clone -b ${{ github.event.pull_request.head.ref}} ${{ github.event.pull_request.head.repo.html_url}} ~/${{ github.event.pull_request.head.repo.name }} --depth 50
       shell: bash
 
     - name: Install current application for  external plugins and pkp-lib for push and pull_request
-      if:  ${{  inputs.repository != '' && inputs.application != '' && inputs.branch != ''}}
+      if:  ${{  inputs.repository != '' && inputs.branch != '' && (matrix.application != '' ||  inputs.application == '') }}
       run: |
-        git clone -b ${{inputs.branch}} https://github.com/${{inputs.repository}}/${{inputs.application}} ~/${{inputs.application}} --depth 2
+        git clone -b ${{inputs.branch}} https://github.com/${{inputs.repository}}/${{matrix.application || inputs.application}} ~/${{matrix.application || inputs.application}} --depth 50
       shell: bash
 
     - name: Reset to a specific commit
       if:  ${{ inputs.reset_commit}}
       run: |
-        cd ~/${{inputs.application || github.event.pull_request.head.repo.name || github.event.repository.name }}
+        cd ~/${{(matrix.application ||  inputs.application) || github.event.pull_request.head.repo.name || github.event.repository.name }}
         git reset --hard  ${{  inputs.reset_commit}}
         echo ":bulb: Reset to commit ${{  inputs.reset_commit}}"
       shell: bash
 
     - name: Install  Submodules
       run: |
-        cd ~/${{inputs.application || github.event.pull_request.head.repo.name || github.event.repository.name  }}
+        cd ~/${{matrix.application ||  inputs.application || github.event.pull_request.head.repo.name || github.event.repository.name  }}
         git submodule update --init --recursive
 
       shell: bash
@@ -106,7 +104,7 @@ runs:
     - name : Checkout for  pkp-lib for Push
       if: ${{  github.event_name  == 'push' && github.event.repository.name =='pkp-lib'}}
       run:  |
-        cd ~/${{inputs.application}}/lib/pkp
+        cd ~/${{matrix.application  || inputs.application}}/lib/pkp
         git remote add ${{ github.event.repository.full_name}} https://github.com/${{ github.repository}}
         git fetch ${{ github.event.repository.full_name}} ${{github.ref_name}}
         git checkout ${{ github.event.repository.full_name}}/${{github.ref_name}}
@@ -115,17 +113,17 @@ runs:
     - name: Checkout for  pkp-lib for Pull_request
       if: ${{  github.event_name  == 'pull_request' && github.event.repository.name =='pkp-lib'}}
       run: |
-        cd ~/${{inputs.application}}/lib/pkp
+        cd ~/${{matrix.application  ||  inputs.application}}/lib/pkp
         git remote add ${{ github.event.pull_request.head.repo.full_name}}   ${{ github.event.pull_request.head.repo.html_url}} 
         git fetch ${{ github.event.pull_request.head.repo.full_name}}  ${{ github.event.pull_request.head.ref}}
         git checkout ${{ github.event.pull_request.head.repo.full_name}}/${{ github.event.pull_request.head.ref}}
       shell: bash
       env:
-        APPLICATION: ${{inputs.application || github.event.pull_request.head.repo.name || github.event.repository.name }}
+        APPLICATION: ${{matrix.application ||  inputs.application || github.event.pull_request.head.repo.name || github.event.repository.name }}
 
     - name: Install  dependencies
       run: |
-        cd ~/${{inputs.application || github.event.repository.name }}
+        cd ~/${{matrix.application ||  inputs.application || github.event.repository.name }}
          ${{ github.workspace }}/pkp-github-actions/.github/actions/install-dependencies.sh
       env:
         NODE_VERSION: ${{inputs.node_version}}
@@ -136,20 +134,19 @@ runs:
       shell: bash
 
     - name: Install validation tools
-      if: ${{ inputs.validate == 'true'}}
+      if: ${{ matrix.validate == 'validate'}}
       run: |
-        cd ~/${{inputs.application || github.event.repository.name }}
+        cd ~/${{matrix.application ||  inputs.application || github.event.repository.name }}
          ${{ github.workspace }}/pkp-github-actions/.github/actions/install-validation-tools.sh
       shell: bash
 
-
     - name: Run XML validation
-      if: ${{ inputs.validate == 'true'}}
+      if: ${{ matrix.validate == 'validate'}}
       id: validation
       run: |
         start_time=$(date -u +%s)
         echo "status=:red_circle:" >> $GITHUB_OUTPUT
-        cd ~/${{inputs.application || github.event.repository.name }}
+        cd ~/${{matrix.application ||  inputs.application || github.event.repository.name }}
         ${{ github.workspace }}/pkp-github-actions/.github/actions/validate-xml.sh
         ${{ github.workspace }}/pkp-github-actions/.github/actions/buildjs.sh -n
         ${{ github.workspace }}/pkp-github-actions/.github/actions/validate-json.sh
@@ -161,108 +158,105 @@ runs:
       shell: bash
 
     - name:  Run  HTTP Server
-      if: ${{ inputs.test == 'true'}}
+      if: ${{ matrix.test == 'test'}}
       run: |
-        cd ~/${{inputs.application || github.event.repository.name }} 
+        cd ~/${{matrix.application ||  inputs.application || github.event.repository.name }} 
         ${{ github.workspace }}/pkp-github-actions/.github/actions/run-http-server.sh
       shell: bash
 
     - name: Prepare test environment
-      if: ${{ inputs.test == 'true'}}
+      if: ${{ matrix.test == 'test'}}
       run: |
-        cd ~/${{inputs.application || github.event.repository.name }} 
+        cd ~/${{matrix.application ||  inputs.application || github.event.repository.name }} 
         ${{ github.workspace }}/pkp-github-actions/.github/actions/prepare-tests.sh
       shell: bash
       env:
-        APPLICATION: ${{inputs.application || github.event.repository.name}}
+        APPLICATION: ${{matrix.application ||  inputs.application || github.event.repository.name}}
         TEST: ${{matrix.database}}
 
     - name: Run  data integration tests
       id: data-integration-tests
-      if: ${{ inputs.test == 'true'}}
+      if: ${{ matrix.test == 'test'}}
       run: |
         start_time=$(date -u +%s)
         echo "status=:red_circle:" >> $GITHUB_OUTPUT
-        cd ~/${{inputs.application || github.event.repository.name }}
+        cd ~/${{matrix.application ||  inputs.application || github.event.repository.name }}
         ${{ github.workspace }}/pkp-github-actions/.github/actions/run-data-integration-tests.sh
         duration=$(date -d@$(($(date -u +%s) - $start_time)) -u +%H:%M:%S) 
         echo "duration=$duration" >> $GITHUB_OUTPUT
         echo "status=:white_check_mark:" >> $GITHUB_OUTPUT
       shell: bash
       env:
-        APPLICATION: ${{inputs.application || github.event.repository.name}}
+        APPLICATION: ${{matrix.application ||  inputs.application || github.event.repository.name}}
         BASEURL: http://localhost
         CYPRESS_DBTYPE: ${{matrix.database=='pgsql' && 'PostgreSQL' || 'MySQLi'}}
         NODE_VERSION: ${{inputs.node_version}}
 
 
     - name: Dump database
+      if: ${{ matrix.test == 'test' }}
       run: |
-        cd ~/${{inputs.application || github.event.repository.name }}
+        cd ~/${{matrix.application ||  inputs.application || github.event.repository.name }}
         ${{ github.workspace }}/pkp-github-actions/.github/actions/dump-database.sh
       shell: bash
       env:
-        APPLICATION: ${{inputs.application || github.event.repository.name}}
+        APPLICATION: ${{matrix.application ||  inputs.application || github.event.repository.name}}
         DBTYPE: ${{matrix.database=='pgsql' && 'PostgreSQL' || 'MySQLi'}}
 
-    - name: Upload datasets
-      if: ${{ inputs.dataset_branch != '' &&  github.event_name  == 'push'}}
-      run: |
-        cd ~/${{inputs.application || github.event.repository.name }}
-        ${{ github.workspace }}/pkp-github-actions/.github/actions/upload-to-datasets-repository.sh
 
+    - name: Upload datasets  (SAVE Build)
+      if: ${{  github.actor == 'pkp-machine-user' && inputs.dataset_branch != '' &&  github.event_name  == 'push' && matrix.SAVE_BUILD == 'save_build'}}
+      run: |
+        cd ~/${{matrix.application ||  inputs.application || github.event.repository.name }}
+        ${{ github.workspace }}/pkp-github-actions/.github/actions/upload-to-datasets-repository.sh
       shell: bash
       env:
-        APPLICATION: ${{inputs.application || github.event.repository.name}}
+        APPLICATION: ${{matrix.application ||  inputs.application || github.event.repository.name}}
         TEST: ${{matrix.database}}
-        SAVE_BUILD: true
         DATASET_BRANCH: ${{inputs.dataset_branch}}
         DATASETS_ACCESS_KEY: ${{inputs.DATASETS_ACCESS_KEY}}
 
     - name: Run  pkp-lib integration tests
       id: pkp-lib-and-plugin-integration-tests
-      if: ${{ inputs.test == 'true'}}
+      if: ${{ matrix.test == 'test'}}
       run: |
         start_time=$(date -u +%s)
         echo "status=:red_circle:" >> $GITHUB_OUTPUT
-        cd ~/${{inputs.application || github.event.repository.name }}
+        cd ~/${{matrix.application ||  inputs.application || github.event.repository.name }}
         ${{ github.workspace }}/pkp-github-actions/.github/actions/run-pkp-lib-and-plugin-integration-tests.sh
         duration=$(date -d@$(($(date -u +%s) - $start_time)) -u +%H:%M:%S) 
         echo "duration=$duration" >> $GITHUB_OUTPUT
         echo "status=:white_check_mark:" >> $GITHUB_OUTPUT
       shell: bash
       env:
-        APPLICATION: ${{inputs.application || github.event.repository.name}}
+        APPLICATION: ${{matrix.application ||  inputs.application || github.event.repository.name}}
         BASEURL: http://localhost
         CYPRESS_DBTYPE: ${{matrix.database=='pgsql' && 'PostgreSQL' || 'MySQLi'}}
         NODE_VERSION: ${{inputs.node_version}}
 
     - name: Run unit tests
       id: unit-test
-      if: ${{ inputs.test == 'true' }}
+      if: ${{ matrix.test == 'test' }}
       run: |
         start_time=$(date -u +%s)
         echo "status=:red_circle:" >> $GITHUB_OUTPUT
-        cd ~/${{inputs.application || github.event.repository.name }} 
-        
-        ${{ github.workspace }}/pkp-github-actions/.github/actions/run-unit-tests.sh -CcPpdR
+        cd ~/${{matrix.application ||  inputs.application || github.event.repository.name }} 
+      
         ${{ github.workspace }}/pkp-github-actions/.github/actions/run-unit-tests.sh -CcPpd
-        
-        
         duration=$(date -d@$(($(date -u +%s) - $start_time)) -u +%H:%M:%S) 
         echo "duration=$duration" >> $GITHUB_OUTPUT
         echo "status=:white_check_mark:" >> $GITHUB_OUTPUT
       shell: bash
       env:
         TEST: ${{matrix.database}}
-        APPLICATION: ${{inputs.application || github.event.repository.name}}
-        DB TYPE: ${{matrix.database == 'pgsql' && 'PostgreSQL' || 'MySQLi'}}
+        APPLICATION: ${{matrix.application ||  inputs.application || github.event.repository.name}}
+        DBTYPE: ${{matrix.database == 'pgsql' && 'PostgreSQL' || 'MySQLi'}}
         NODE_VERSION: ${{inputs.node_version}}
 
     - name: Download datasets
-      if: ${{  github.event_name  == 'pull_request' &&  inputs.upgrade == 'true'}}
+      if: ${{  matrix.upgrade== 'upgrade' &&  matrix.test == 'test'}}
       run: |
-        cd ~/${{inputs.application || github.event.repository.name }} 
+        cd ~/${{matrix.application ||  inputs.application || github.event.repository.name }} 
         git clone https://github.com/pkp/datasets --depth 1
       shell: bash
       env:
@@ -270,13 +264,13 @@ runs:
         DBTYPE: ${{matrix.database == 'pgsql' && 'PostgreSQL' || 'MySQLi'}}
         FILESDUMP: files.tar.gz
 
-    - name: Run upgrade tests
+    - name: Run upgrade tests for push requests
       id: upgrade
-      if: ${{  github.event_name  == 'push'  &&  inputs.upgrade == 'true' && inputs.upgrade_test != '' && (matrix.database == 'pgsql' || matrix.database == 'mysql' ) && (matrix.php-version == '8.1')}}
+      if: ${{  github.event_name  == 'push'  &&   matrix.test == 'test' && matrix.upgrade== 'upgrade' && matrix.upgrade_test != '' && (matrix.database == 'pgsql' || matrix.database == 'mysql' ) }}
       run: |
         start_time=$(date -u +%s)
-        cd ~/${{inputs.application || github.event.repository.name }}
-        IFS=',' read -ra DATASET_BRANCHES <<< "${{inputs.upgrade_test}}"
+        cd ~/${{matrix.application ||  inputs.application || github.event.repository.name }}
+        IFS=',' read -ra DATASET_BRANCHES <<< "${{matrix.upgrade_test}}"
         for DATASET_BRANCH in "${DATASET_BRANCHES[@]}"
         do
           source  ${{ github.workspace }}/pkp-github-actions/.github/actions/prepare-tests.sh
@@ -287,7 +281,7 @@ runs:
         echo "duration=$duration" >> $GITHUB_OUTPUT
         echo "status=:white_check_mark:" >> $GITHUB_OUTPUT
       env:
-        APPLICATION: ${{inputs.application || github.event.repository.name}}
+        APPLICATION: ${{matrix.application ||  inputs.application || github.event.repository.name}}
         DATASET_BRANCH: ${DATASET_BRANCH}
         DBTYPE: ${{matrix.database == 'pgsql' && 'PostgreSQL' || 'MySQLi'}}
         TEST: ${{matrix.database}}
@@ -310,30 +304,29 @@ runs:
           echo " | OS  |PHP| DB|  Node |  "
           echo "| ---| --- | ---- | --- |"
           echo "|  :penguin: ${{runner.os}} ${{runner.arch}}   $( lsb_release -i | cut -c 17-) $( lsb_release -c | cut -c 11-) $( lsb_release -r | cut -c 10-)   | ${{matrix.php-version}} | ${{matrix.database}} |  ${{inputs.node_version}} |"
-        
-      
+             
       
         } >> $GITHUB_STEP_SUMMARY
       shell: bash
       env:
-        APPLICATION: ${{inputs.application || github.event.pull_request.head.repo.name || github.event.repository.name }}
+        APPLICATION: ${{matrix.application ||  inputs.application || github.event.pull_request.head.repo.name || github.event.repository.name }}
 
 
     - uses: actions/upload-artifact@v4
       if: failure()
       with:
        name: cypress-${{matrix.database }}-${{ matrix.php-version }}
-       path: ~/${{ inputs.application || github.event.repository.name }}/cypress/screenshots
+       path: ~/${{ matrix.application ||  inputs.application || github.event.repository.name }}/cypress/screenshots
        if-no-files-found: ignore
        overwrite: false
     - uses: actions/upload-artifact@v4
       if: failure()
       with:
         name: ${{matrix.database }}-${{ matrix.php-version }}-http-access.log
-        path: ~/${{ inputs.application || github.event.repository.name }}/access.log
+        path: ~/${{ matrix.application ||  inputs.application || github.event.repository.name }}/access.log
         overwrite: false
 
-    - name: Setup tmate session
+    - name: Setup tmate session by failure
       if: ${{ failure() && inputs.DEBUG_IN_TMATE == 'true' }}
       uses: mxschmitt/action-tmate@v3
 
