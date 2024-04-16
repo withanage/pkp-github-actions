@@ -4,6 +4,9 @@
     -   [Default configuration for
         OJS/OMP/OPS](#default-configuration-for-ojsompops)
         -   [Explanation](#explanation)
+    -   [Default for pkp-lib or
+        plugins](#default-for-pkp-lib-or-plugins)
+        -   [Explanation](#explanation-1)
     -   [Development Scenarios](#development-scenarios)
         -   [Scenario 1: Only Application
             (ojs/omp/ops)](#scenario-1-only-application-ojsompops)
