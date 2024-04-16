@@ -62,7 +62,7 @@ and their configuration can be found in the following file_path `.github/workflo
 11.             validate: 'validate'
 12.           - php-version: 8.1
 13.             database: pgsql
-14.             test: 'upgrade'
+14.             test: 'test'
 15.             upgrade_test: '3.1.0,3.1.1-2,
 16.     name: ojs
 17.     steps:
