@@ -224,13 +224,13 @@ steps:
  3.4      |test| 8.1     | mysql   |                | x          | 5         |       
  3.4      |test| 8.2     | mysql   |                |            | 6         
  3.4      |test| 8.2     | pgsql   |                |            | 7         
- 3.4      |test| | 8|  mysql                        |            | 8         
- 3.4      |upgrade| 8       | mysql   | 3.1.0          |            | 8         
- 3.4      |upgrade| 8       | mysql   | 3.1.1-2        |            | 8         
- 3.4      |upgrade| 8       | mysql   | 3.1.2          |            | 8         
- 3.4      |upgrade| 8       | mysql   | stable-3_2_0   |            | 8         
- 3.4      |upgrade| 8       | mysql   | stable-3_2_1   |            | 8         
- 3.4      |upgrade| 8       | mysql   | stable-3_3_0   |            | 8         
+ 3.4      |test| | 8|  mysql                        |            | 7         
+ 3.4      |upgrade| 8       | mysql   | 3.1.0          |            | 7         
+ 3.4      |upgrade| 8       | mysql   | 3.1.1-2        |            | 7         
+ 3.4      |upgrade| 8       | mysql   | 3.1.2          |            | 7         
+ 3.4      |upgrade| 8       | mysql   | stable-3_2_0   |            | 7         
+ 3.4      |upgrade| 8       | mysql   | stable-3_2_1   |            | 7         
+ 3.4      |upgrade| 8       | mysql   | stable-3_3_0   |            | 7         
  3.4      |upgrade| 8       | pgsql   | 3.1.0          |            | 7         
  3.4      |upgrade| 8       | pgsql   | stable-3_2_0   |            | 7         
  3.4      |upgrade| 8       | pgsql   | stable-3_2_1   |            | 7         
