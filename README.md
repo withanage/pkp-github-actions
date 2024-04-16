@@ -28,18 +28,18 @@ and their configuration can be found in the following file_path `.github/workflo
 ### Input variables
 
 
-| Variable     | Description                                                         | Default   |
-|----------------|---------------------------------------------------------------------|-----------| 
-| repository   | github repository name                                              | Current repository |
-| application  | PKP Application (OJS\| OMP\| OPS)                                   | Current application |
-| branch       | git branch                                                          | Current branch |
-| validate     | run valiadtoin tests true\|false                                    | true      |
-| test         | run unit and integration tests true\|false                          | true      |
-| upgrade      | run upgrade tests , only for pull requests                          | true      |
-| node_version | can be set manually for older versions eg. 16.1.0                   | 20        |
-| reset_commit | Explicitly test a certain version of PKP Application                | -         |
-| dataset_branch | Identify the OJS Version: eg.g 3_3_0, 3_4_0,main                    | -         |
-| debug_in_tmate | When a test fails anywhere, opens a tmate session, with ssh-server. |          |
+| Variable     | Description                                                         | Default            |
+|----------------|---------------------------------------------------------------------|--------------------| 
+| validate     | run valiadtoin tests true\|false                                    | true               |
+| test         | run unit and integration tests true\|false                          | true               |
+| upgrade      | run upgrade tests , only for pull requests                          | true               |
+| repository   | github repository name     (needed for pkp-lib)                     | Current repository |
+| application  | PKP Application (OJS\| OMP\| OPS)     (needed for pkp-lib)          | Current application |
+| branch       | git branch         (needed for pkp-lib)                             | Current branch     |
+| node_version | can be set manually for older versions eg. 16.1.0                   | 20                 |
+| reset_commit | Explicitly test a certain version of PKP Application                | -                  |
+| dataset_branch | Identify the OJS Version: eg.g 3_3_0, 3_4_0,main                    | -                  |
+| debug_in_tmate | When a test fails anywhere, opens a tmate session, with ssh-server. |                    |
 
 
 
@@ -83,9 +83,9 @@ and their configuration can be found in the following file_path `.github/workflo
 10. 1. Test - Currently tested PHP version
 11. 1. Test - currently tested action type (validate| test| upgrade)12Test - Currently tested PHP version
 12. 2. Test - Currently tested PHP version
-13. Test - currently  database type (mysql | pgsql | mariadb) 
+13. 2. Test - currently  database type (mysql | pgsql | mariadb) 
 14. 2. Test - currently tested action type (validate| test| upgrade)
-15.  2. Test - Upgrade tests from earlier versions
+15. 2. Test - Upgrade tests from earlier versions
 16. name: of the action 
 17. General definition for steps
 18. Default integration is pkp-github-actions for OJS/OMP/OPS applications , but e.g. plugins, may run  extra github actions steps or use external github actions. 
@@ -95,8 +95,43 @@ and their configuration can be found in the following file_path `.github/workflo
 22. Only needed if the datasets get saved to the  pkp/datasets, will only used for pkp-machine-user
 23. This opens a tmate session, if any test fails
 
+## Default for pkp-lib or plugins
 
+```yml
+1. on: [push, pull_request]
+2. name: pkp-lib
+3. jobs:
+4.   pkp-lib:
+5.     runs-on: ubuntu-latest
+6.     strategy:
+7.       fail-fast: false
+8.       matrix:
+9.         include:
+10.           - application: ojs
+11.             php-version: 7.3
+12.             database: mysql
+13.             test: 'test'
+14.           - application: omp
+15.             php-version: 7.4
+16.             database: mysql
+17.             test: 'test'
+18.     name: pkp-lib
+19.     steps:
+20.       - uses: pkp/pkp-github-actions@v1
+21.         with:
+22.           repository: pkp
+23.           branch: stable-3_3_0
+24.           node_version: 12
+25.           DEBUG_IN_TMATE: false
 
+```
+### Explanation
+
+See above for the un-listed definitions. 
+
+10. The application you are testing agains
+22. you can define your own repository, if you are developing against that.
+23. The  git branch , you are targetting your tests.
 
 ## Development Scenarios
 
