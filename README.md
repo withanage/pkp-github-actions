@@ -147,7 +147,7 @@ This scenario  assumes, you are only doing enhancements or bugfixes to ojs,omp o
    `git clone -b stable-3_4_0  https://github.com/pkp/ojs  $MY_PATH/ojs`
 2. Optional: update your pkp-lib and other sub-modules to keep up with changes and include in push commits
   ` git submodule update --init --recursive -f; git add lib/pkp; git commit -m "Submodule update"`
-3. Commit and push to your local repository
+3. Commit and push to your user git repository
 4. Create your PR to  https://github.com/pkp/$application
   
 ###  Scenario 2: Only pkp-lib 
@@ -166,14 +166,14 @@ This scenario assumes, you are doing overall changes to the pkp-lib repository, 
 This will trigger   tests against omp,ojs,ops automatically.If you would like to expand or reduce the tests , you can change the application matrix.
 `https://github.com/your_username/pkp-lib/tree/feature_branch/.github/workflows`
 
- Info: your ojs, omp and ops tests are running against the selected pkp branch. 
+ Info: your ojs, omp and ops tests are running against the selected git branch. 
  
 ### Scenario 3: Application + pkp-lib
 
 If you are changing  both the pkp-lib and the application, follow one of the following strategies.
-#### Step 1: Modify .gitmodules file in the application folder of OJS, OMP, OPS
+#### Step 1: Modify .gitmodules file in the application  e.g. ojs
 1. **Update .gitmodules File:**
-Modify the `.gitmodules` file within the application folder of OJS, OMP, OPS.   You would change the URL to point to your repository temporarily for testing purposes.
+ You would change the URL to point to your repository temporarily for testing purposes.
 ```
 [submodule "pkp-lib"]
        path = pkp-lib
@@ -181,14 +181,14 @@ Modify the `.gitmodules` file within the application folder of OJS, OMP, OPS.   
        branch = my-feature-branch
 ```
 
-Commits to your repository will trigger the tests automatically.
+Commits to your git user repository will trigger the tests automatically.
 
+#### Step 2 : Change GitHub Workflow File in pkp-lb
 
-#### Step 2 : Change GitHub workflow to target repository and branch
+E.g. Modify the GitHub workflow file located and commit to pkp-lib
 
-1. **Change GitHub Workflow File in pkp-lb:**
-E.g. Modify the GitHub workflow file located and commit to pkp-lin:
 https://github.com/your_username/pkp-lib/tree/feature_branch/.github/workflows/stable-3_4_0.yml
+
 ```
 steps:
       - uses: xmlFlow/pkp-github-actions@v1
@@ -257,6 +257,4 @@ steps:
 - During the development: chat.openai.com used as a help tool
 
 ## TODO
-- Untittests with R
-- 
 
