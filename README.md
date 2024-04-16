@@ -31,19 +31,20 @@ and their configuration can be found in the following file_path `.github/workflo
 ### Input variables
 
 
-| Variable     | Description                                                         | Default            |
-|----------------|---------------------------------------------------------------------|--------------------| 
-| validate     | run valiadtoin tests true\|false                                    | true               |
-| test         | run unit and integration tests true\|false                          | true               |
-| upgrade      | run upgrade tests , only for pull requests                          | true               |
-| repository   | github repository name     (needed for pkp-lib)                     | Current repository |
-| application  | PKP Application (OJS\| OMP\| OPS)     (needed for pkp-lib)          | Current application |
-| branch       | git branch         (needed for pkp-lib)                             | Current branch     |
-| node_version | can be set manually for older versions eg. 16.1.0                   | 20                 |
-| reset_commit | Explicitly test a certain version of PKP Application                | -                  |
-| dataset_branch | Identify the OJS Version: eg.g 3_3_0, 3_4_0,main                    | -                  |
-| debug_in_tmate | When a test fails anywhere, opens a tmate session, with ssh-server. |                    |
-
+| Variable       | Description                                                         | Default        |
+|----------------|---------------------------------------------------------------------|----------------| 
+| application    | PKP Application (OJS\| OMP\| OPS)     (needed for pkp-lib)          | Current application |
+| branch         | git branch         (needed for pkp-lib)                             | Current branch |
+| dataset_branch | Identify the OJS Version:  3_3_0 for pkp/datasets                   | -              |
+| debug_in_tmate | When a test fails anywhere, opens a tmate session, with ssh-server. |                |
+| node_version   | can be set manually for older versions eg. 16.1.0                   | 20             |
+| repository     | github repository name     (needed for pkp-lib)                     | Current repository |
+| reset_commit   | Explicitly test a certain version of PKP Application                | -              |
+| SAVE_BUILD     | if set, it will save the database to 'save_build'    pkp/datasets   |                |
+| test           | run unit and integration tests 'test'                               |            |
+| validate       | run valiadtoin tests  'validate'                                    |                |
+| upgrade        | run upgrade tests  'upgrade'                                        |            |
+| upgrade_test   | Identify the OJS Version: eg.g 3_3_0, 3_4_0,main  for upgrade_tests | -              |
 
 
 ##  Default configuration for OJS/OMP/OPS
@@ -61,7 +62,7 @@ and their configuration can be found in the following file_path `.github/workflo
 11.             validate: 'validate'
 12.           - php-version: 8.1
 13.             database: pgsql
-14.             test: 'upgrade'
+14.             test: 'test'
 15.             upgrade_test: '3.1.0,3.1.1-2,
 16.     name: ojs
 17.     steps:
