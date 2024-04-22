@@ -43,6 +43,7 @@ fi
 
 cd datasets
 git config --global user.name $GITHUB_ACTOR
+git config user.email   "$GITHUB_ACTOR+$GITHUB_ACTOR_ID@users.noreply.github.com"
 git add --all
 git commit -m "Update datasets (${DATASET_BRANCH})"
 git push
