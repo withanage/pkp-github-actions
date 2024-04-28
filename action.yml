@@ -31,7 +31,7 @@ runs:
   steps:
     - uses: actions/checkout@v4
       with:
-        repository: 'pkp/pkp-github-actions'
+        repository: 'xmlFlow/pkp-github-actions'
         path: pkp-github-actions
         ref: v1
 
@@ -74,13 +74,21 @@ runs:
        git clone -b ${{ github.head_ref || github.ref_name }} https://github.com/${{ github.repository}} ~/${{ github.event.repository.name }}  --depth 50
       shell: bash
 
+
     - name: Install PKP application for pull_request
       if:  ${{github.event_name  == 'pull_request' &&    (inputs.repository == '' && (matrix.application ||  inputs.application) == '' && inputs.branch == '')}}
       run: |
         git clone -b ${{ github.event.pull_request.head.ref}} ${{ github.event.pull_request.head.repo.html_url}} ~/${{ github.event.pull_request.head.repo.name }} --depth 50
       shell: bash
 
-    - name: Install current application for  external plugins and pkp-lib for push and pull_request
+    - name: Install PKP application for schedule
+      if: ${{  github.event_name  == 'schedule' &&      (inputs.repository == '' && (matrix.application ||  inputs.application) == '' && inputs.branch == '')}}
+      run: |
+        git clone -b ${{ github.head_ref || github.ref_name }} https://github.com/${{ github.repository}} ~/${{ github.event.repository.name }} --depth 50
+      shell: bash
+
+
+    - name: pkp-lib for push and pull_request
       if:  ${{  inputs.repository != '' && inputs.branch != '' && (matrix.application != '' ||  inputs.application == '') }}
       run: |
         git clone -b ${{inputs.branch}} https://github.com/${{inputs.repository}}/${{matrix.application || inputs.application}} ~/${{matrix.application || inputs.application}} --depth 50
@@ -98,7 +106,12 @@ runs:
       run: |
         cd ~/${{matrix.application ||  inputs.application || github.event.pull_request.head.repo.name || github.event.repository.name  }}
         git submodule update --init --recursive
+      shell: bash
 
+    - name: Checkout user repo
+      run: |
+        cd ~/${{matrix.application ||  inputs.application || github.event.pull_request.head.repo.name || github.event.repository.name  }}
+        ${{ github.workspace }}/pkp-github-actions/.github/actions/checkout_user_repo.sh
       shell: bash
 
     - name : Checkout for  pkp-lib for Push
@@ -195,7 +208,7 @@ runs:
 
     - name: Dump database
       if: ${{ matrix.test == 'test' }}
-      run: |
+      run:  |
         cd ~/${{matrix.application ||  inputs.application || github.event.repository.name }}
         ${{ github.workspace }}/pkp-github-actions/.github/actions/dump-database.sh
       shell: bash
@@ -203,12 +216,12 @@ runs:
         APPLICATION: ${{matrix.application ||  inputs.application || github.event.repository.name}}
         DBTYPE: ${{matrix.database=='pgsql' && 'PostgreSQL' || 'MySQLi'}}
 
-
     - name: Upload datasets  (SAVE Build)
-      if: ${{  github.actor == 'pkp-machine-user' && inputs.dataset_branch != '' &&  github.event_name  == 'push' && matrix.SAVE_BUILD == 'save_build'}}
+      if: ${{matrix.SAVE_BUILD == 'save_build' && github.repository_owner == 'xmlFlow' && inputs.dataset_branch != ''  }}
       run: |
         cd ~/${{matrix.application ||  inputs.application || github.event.repository.name }}
         ${{ github.workspace }}/pkp-github-actions/.github/actions/upload-to-datasets-repository.sh
+
       shell: bash
       env:
         APPLICATION: ${{matrix.application ||  inputs.application || github.event.repository.name}}
@@ -264,9 +277,9 @@ runs:
         DBTYPE: ${{matrix.database == 'pgsql' && 'PostgreSQL' || 'MySQLi'}}
         FILESDUMP: files.tar.gz
 
-    - name: Run upgrade tests for push requests
+    - name: Run upgrade tests
       id: upgrade
-      if: ${{  github.event_name  == 'push'  &&   matrix.test == 'test' && matrix.upgrade== 'upgrade' && matrix.upgrade_test != '' && (matrix.database == 'pgsql' || matrix.database == 'mysql' ) }}
+      if: ${{ matrix.test == 'test' && matrix.upgrade== 'upgrade' && matrix.upgrade_test != '' && (matrix.database == 'pgsql' || matrix.database == 'mysql' ) }}
       run: |
         start_time=$(date -u +%s)
         cd ~/${{matrix.application ||  inputs.application || github.event.repository.name }}
@@ -310,7 +323,6 @@ runs:
       shell: bash
       env:
         APPLICATION: ${{matrix.application ||  inputs.application || github.event.pull_request.head.repo.name || github.event.repository.name }}
-
 
     - uses: actions/upload-artifact@v4
       if: failure()
