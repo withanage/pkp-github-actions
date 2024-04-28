@@ -31,7 +31,7 @@ runs:
   steps:
     - uses: actions/checkout@v4
       with:
-        repository: 'xmlFlow/pkp-github-actions'
+        repository: 'pkp/pkp-github-actions'
         path: pkp-github-actions
         ref: v1
 
@@ -217,7 +217,7 @@ runs:
         DBTYPE: ${{matrix.database=='pgsql' && 'PostgreSQL' || 'MySQLi'}}
 
     - name: Upload datasets  (SAVE Build)
-      if: ${{matrix.SAVE_BUILD == 'save_build' && github.repository_owner == 'xmlFlow' && inputs.dataset_branch != ''  }}
+      if: ${{matrix.SAVE_BUILD == 'save_build' && github.repository_owner == 'pkp' && inputs.dataset_branch != ''  }}
       run: |
         cd ~/${{matrix.application ||  inputs.application || github.event.repository.name }}
         ${{ github.workspace }}/pkp-github-actions/.github/actions/upload-to-datasets-repository.sh
