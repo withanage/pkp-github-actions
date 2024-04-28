@@ -32,8 +32,10 @@ DO_ALL=1
 # Various types of tests
 DO_PKP_CLASSES=0
 DO_PKP_PLUGINS=0
+DO_PKP_JOBS=0
 DO_APP_CLASSES=0
 DO_APP_PLUGINS=0
+DO_APP_JOBS=0
 DO_COVERAGE=0
 DEBUG=""
 
@@ -43,14 +45,20 @@ DEBUG=""
 if [[ "$NODE_VERSION" -gt "15"  ]]; then
 
   # Parse arguments
-  while getopts "CPcpdR" opt; do
+while getopts "CPcpdRJj" opt; do
   	case "$opt" in
+		J)	DO_ALL=0
+			DO_PKP_JOBS=1
+			;;
   		C)	DO_ALL=0
   			DO_PKP_CLASSES=1
   			;;
   		P)	DO_ALL=0
   			DO_PKP_PLUGINS=1
   			;;
+		j)	DO_ALL=0
+			DO_APP_JOBS=1
+			;;
   		c)	DO_ALL=0
   			DO_APP_CLASSES=1
   			;;
@@ -69,6 +77,10 @@ if [[ "$NODE_VERSION" -gt "15"  ]]; then
   # Where to look for tests
   TEST_SUITES='--testsuite '
 
+  if [ \( "$DO_ALL" -eq 1 \) -o \( "$DO_PKP_JOBS" -eq 1 \) ]; then
+	  TEST_SUITES="${TEST_SUITES}LibraryJobs,"
+  fi
+
   if [ \( "$DO_ALL" -eq 1 \) -o \( "$DO_PKP_CLASSES" -eq 1 \) ]; then
     TEST_SUITES="${TEST_SUITES}LibraryClasses,"
   fi
@@ -77,6 +89,9 @@ if [[ "$NODE_VERSION" -gt "15"  ]]; then
     TEST_SUITES="${TEST_SUITES}LibraryPlugins,"
   fi
 
+  if [ \( "$DO_ALL" -eq 1 \) -o \( "$DO_APP_JOBS" -eq 1 \) ]; then
+    TEST_SUITES="${TEST_SUITES}ApplicationJobs,"
+  fi
   if [ \( "$DO_ALL" -eq 1 \) -o \( "$DO_APP_CLASSES" -eq 1 \) ]; then
     TEST_SUITES="${TEST_SUITES}ApplicationClasses,"
   fi
