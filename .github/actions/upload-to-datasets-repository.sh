@@ -19,7 +19,7 @@ export FILESDUMP=files.tar.gz # Path and filename where a database dump can be c
 tar czf ${FILESDUMP} ${FILESDIR}
 
 # If desired, store the built dataset in https://github.com/pkp/datasets
-git clone --depth 1 https://xmlFlow:${DATASETS_ACCESS_KEY}@github.com/xmlFlow/datasets ~/datasets
+git clone --depth 1 https://pkp-machine-user:${DATASETS_ACCESS_KEY}@github.com/pkp/datasets ~/datasets
 rm -rf ~/datasets/${APPLICATION}/${DATASET_BRANCH}/${TEST}
 mkdir -p ~/datasets/${APPLICATION}/${DATASET_BRANCH}/${TEST}
 zcat ${DATABASEDUMP} > ~/datasets/${APPLICATION}/${DATASET_BRANCH}/${TEST}/database.sql

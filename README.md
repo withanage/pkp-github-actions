@@ -191,7 +191,7 @@ https://github.com/your_username/pkp-lib/tree/feature_branch/.github/workflows/s
 
 ```
 steps:
-      - uses: xmlFlow/pkp-github-actions@v1
+      - uses: pkp/pkp-github-actions@v1
         with:
           repository:your_username
           branch = my-feature-branch
