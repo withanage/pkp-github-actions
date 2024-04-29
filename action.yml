@@ -271,7 +271,7 @@ runs:
       if: ${{  matrix.upgrade== 'upgrade' &&  matrix.test == 'test'}}
       run: |
         cd ~/${{matrix.application ||  inputs.application || github.event.repository.name }} 
-        git clone https://github.com/pkp/datasets --depth 1
+        git clone --depth 1 https://github.com/pkp/datasets  ~/datasets
       shell: bash
       env:
         DATABASEDUMP: database.sql.gz
