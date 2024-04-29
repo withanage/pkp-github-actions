@@ -84,7 +84,7 @@ runs:
     - name: Install PKP application for schedule
       if: ${{  github.event_name  == 'schedule' &&      (inputs.repository == '' && (matrix.application ||  inputs.application) == '' && inputs.branch == '')}}
       run: |
-        git clone -b ${{ github.head_ref || github.ref_name }} https://github.com/${{ github.repository}} ~/${{ github.event.repository.name }} --depth 50
+        git clone -b ${{ inputs.dataset_branch}} https://github.com/${{ github.repository}} ~/${{ github.event.repository.name }} --depth 50
       shell: bash
 
 
