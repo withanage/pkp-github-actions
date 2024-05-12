@@ -8,7 +8,7 @@ inputs:
   branch:
      required: false
   test:
-    default: true
+    default: false
     required: false
   upgrade:
     default: false
@@ -42,12 +42,10 @@ runs:
         sudo dpkg-reconfigure locales
         sudo sed -i -E 's\peer|scram-sha-256\trust\g' /etc/postgresql/14/main/pg_hba.conf
       shell: bash
-
-
     - name: Install mysql server
       if: ${{matrix.database == 'mysql'}}
       run: |
-        sudo apt install -q -y mysql-server mysql-client
+        sudo apt install -q -y mysql-server-8.0 mysql-client-8.0
         sudo service mysql start
         sudo mysqladmin -u root -p'root' password ''
       shell: bash
@@ -57,7 +55,6 @@ runs:
       uses: ankane/setup-mariadb@v1
       with:
         mariadb-version: "10.11"
-
 
     - name: Install php environment
       uses: shivammathur/setup-php@v2
@@ -178,7 +175,6 @@ runs:
       shell: bash
 
     - name: Prepare test environment
-      if: ${{ matrix.test == 'test'}}
       run: |
         cd ~/${{matrix.application ||  inputs.application || github.event.repository.name }} 
         ${{ github.workspace }}/pkp-github-actions/.github/actions/prepare-tests.sh

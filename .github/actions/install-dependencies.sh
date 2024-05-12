@@ -7,8 +7,6 @@ set -e
 # Search for composer.json files, and run Composer to install the dependencies.
 find . -maxdepth 4 -name composer.json -exec bash -c 'composer --no-ansi --working-dir="`dirname {}`" install --optimize-autoloader' ";"
 
-#wget https://dl.google.com/dl/linux/direct/google-chrome-beta_current_amd64.deb
-#sudo dpkg -i google-chrome-beta_current_amd64.deb
 
 sudo npm cache clean -f
 sudo npm install -g n

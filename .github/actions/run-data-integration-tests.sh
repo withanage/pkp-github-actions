@@ -20,6 +20,6 @@ if [[ "$NODE_VERSION" -gt "13"  ]]; then
 fi
 
 if [[ "$NODE_VERSION" -lt "13"  ]]; then
-  npx cypress run --headless --browser chrome --headless --browser chrome --config integrationFolder=cypress/tests/data
+  npx cypress run --headless --browser chrome --config integrationFolder=cypress/tests/data
 fi
 
