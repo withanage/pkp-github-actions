@@ -1,5 +1,6 @@
 #!/bin/bash
 last_commit_message=$(git log -1 --pretty=%B)
+echo $last_commit_message
 pattern='##(.*)##'
 if [[ $last_commit_message =~ $pattern ]]; then
     cd lib/pkp

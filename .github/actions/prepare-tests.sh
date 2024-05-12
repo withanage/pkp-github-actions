@@ -33,7 +33,7 @@ elif [[ "$TEST" == "mysql" ]]; then
 	sudo mysql -u root -e "DROP DATABASE IF EXISTS  \`${DBNAME}\` ";
   sudo mysql -u root -e "DROP USER IF EXISTS \`${DBUSERNAME}\`@${DBHOST}";
 	sudo mysql -u root -e "CREATE DATABASE \`${DBNAME}\` DEFAULT CHARACTER SET utf8"
-	sudo mysql -u root -e "CREATE USER \`${DBUSERNAME}\`@${DBHOST} IDENTIFIED BY '${DBPASSWORD}'"
+	sudo mysql -u root -e "CREATE USER \`${DBUSERNAME}\`@${DBHOST} IDENTIFIED WITH mysql_native_password BY '${DBPASSWORD}';  ";
 	sudo mysql -u root -e "GRANT ALL ON \`${DBNAME}\`.* TO \`${DBUSERNAME}\`@${DBHOST} WITH GRANT OPTION"
 	export DBTYPE=MySQLi
 elif [[ "$TEST" == "mariadb" ]]; then
