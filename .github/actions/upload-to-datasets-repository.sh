@@ -48,6 +48,7 @@ git config user.email   "$GITHUB_ACTOR+$GITHUB_ACTOR_ID@users.noreply.github.com
 git add --all
 git commit -m "Update datasets ( ${APPLICATION} ${DATASET_BRANCH} ${TEST})"
 git push
+git log --pretty=format:"%H  %an %ad%x09%s" -1
 cd ..
 
 
