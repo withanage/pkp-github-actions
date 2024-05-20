@@ -42,6 +42,7 @@ if [[ "$DATASET_BRANCH" == "main" ]]; then
 fi
 
 cd ~/datasets
+echo "Running dataset update"
 source  $GITHUB_WORKSPACE/pkp-github-actions/.github/actions/git-auto-pull.sh
 git config --global user.name $GITHUB_ACTOR
 git config user.email   "$GITHUB_ACTOR+$GITHUB_ACTOR_ID@users.noreply.github.com"
