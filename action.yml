@@ -216,9 +216,8 @@ runs:
       if: ${{matrix.SAVE_BUILD == 'save_build' && github.repository_owner == 'pkp' && inputs.dataset_branch != ''  }}
       run: |
         cd ~/${{matrix.application ||  inputs.application || github.event.repository.name }}
-        if [ -z "${{inputs.DATASETS_ACCESS_KEY}}" ]; then
-            ${{ github.workspace }}/pkp-github-actions/.github/actions/upload-to-datasets-repository.sh
-        fi
+        ${{ github.workspace }}/pkp-github-actions/.github/actions/upload-to-datasets-repository.sh
+
       shell: bash
       env:
         APPLICATION: ${{matrix.application ||  inputs.application || github.event.repository.name}}
