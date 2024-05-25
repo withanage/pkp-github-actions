@@ -294,6 +294,8 @@ runs:
         DATASET_BRANCH: ${DATASET_BRANCH}
         DBTYPE: ${{matrix.database == 'pgsql' && 'PostgreSQL' || 'MySQLi'}}
         TEST: ${{matrix.database}}
+        APP_BRANCH: ${inputs.dataset_branch}
+
       shell: bash
 
     - name: Print summary

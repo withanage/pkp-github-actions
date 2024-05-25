@@ -17,6 +17,7 @@ patch -p1 < ~/datasets/upgrade/3_4_0-add-email-config.diff
 patch -p1 < ~/datasets/upgrade/3_4_0-update-locale.diff
 fi
 
+
 ~/datasets/tools/dbclient.sh < ~/datasets/${APPLICATION}/${DATASET_BRANCH}/${TEST}/database.sql
 
 source  $GITHUB_WORKSPACE/pkp-github-actions/.github/actions/prepare-logs.sh
