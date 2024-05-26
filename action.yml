@@ -269,7 +269,7 @@ runs:
         if [ -d "datasets" ]; then
           echo "The folder datasets exists"
         else
-          git clone --depth 1 https://github.com/pkp/datasets  ~/datasets
+          git clone --depth 1 https://github.com/pkp/datasets  datasets
         fi
       shell: bash
       env:
