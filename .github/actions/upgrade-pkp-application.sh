@@ -12,7 +12,7 @@ cp -rf ~/datasets/${APPLICATION}/${DATASET_BRANCH}/${TEST}/files/* files/
 cp -rf ~/datasets/${APPLICATION}/${DATASET_BRANCH}/${TEST}/public/* public/
 cp  ~/datasets/${APPLICATION}/${DATASET_BRANCH}/${TEST}/config.inc.php .
 
-if [[ "${APP_BRANCH}" == "stable-3_4_0" ]]; then
+if [[ "${APP_BRANCH}" == "stable-3_4_0"  || "${APP_BRANCH}" == "main"  ]]; then
 patch -p1 < ~/datasets/upgrade/3_4_0-add-email-config.diff
 patch -p1 < ~/datasets/upgrade/3_4_0-update-locale.diff
 fi
