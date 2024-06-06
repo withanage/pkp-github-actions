@@ -106,6 +106,7 @@ runs:
       shell: bash
 
     - name: Checkout user repo
+      if:  ${{github.event_name  == 'pull_request' ||  github.event_name  == 'push'   }}
       run: |
         cd ~/${{matrix.application ||  inputs.application || github.event.pull_request.head.repo.name || github.event.repository.name  }}
         ${{ github.workspace }}/pkp-github-actions/.github/actions/checkout_user_repo.sh
@@ -267,10 +268,9 @@ runs:
       run: |
         cd ~/${{matrix.application ||  inputs.application || github.event.repository.name }}
         if [ -d "datasets" ]; then
-          echo "The folder datasets exists"
-        else
-          git clone --depth 1 https://github.com/pkp/datasets  datasets
+          rm -rf datasets
         fi
+        git clone --depth 1 https://github.com/pkp/datasets  datasets
       shell: bash
       env:
         DATABASEDUMP: database.sql.gz
