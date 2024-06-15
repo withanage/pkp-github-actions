@@ -56,7 +56,19 @@ runs:
       with:
         mariadb-version: "10.11"
 
-    - name: Install php environment
+    - name: Install php environment for versions larger than 8.0
+      if: ${{matrix.php-version >= 8.0}}
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: ${{matrix.php-version}}
+        extensions: bcmath, bz2, curl, gd, intl, mbstring, mysql,mysqlnd, mysqli, opcache, pdo_mysql, pgsql, json,soap, xml, zip
+        coverage: xdebug
+        ini-values: assert.exception=1,zend.assertions=1
+      env:
+        update: true
+
+    - name: Install php environment for versions smaller than 8.0
+      if: ${{matrix.php-version < 8.0}}
       uses: shivammathur/setup-php@v2
       with:
         php-version: ${{matrix.php-version}}
