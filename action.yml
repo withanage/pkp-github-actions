@@ -118,7 +118,7 @@ runs:
       shell: bash
 
     - name: Checkout user repo
-      if:  ${{github.event_name  == 'pull_request' ||  github.event_name  == 'push'   }}
+      if:  ${{github.event_name  == 'pull_request'}}
       run: |
         cd ~/${{matrix.application ||  inputs.application || github.event.pull_request.head.repo.name || github.event.repository.name  }}
         ${{ github.workspace }}/pkp-github-actions/.github/actions/checkout_user_repo.sh
@@ -278,7 +278,7 @@ runs:
     - name: Download datasets
       if: ${{  matrix.upgrade== 'upgrade' &&  matrix.test == 'test'}}
       run: |
-        cd ~/${{matrix.application ||  inputs.application || github.event.repository.name }}
+        cd ~/
         if [ -d "datasets" ]; then
           rm -rf datasets
         fi
