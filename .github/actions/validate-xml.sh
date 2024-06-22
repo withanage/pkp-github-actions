@@ -9,7 +9,7 @@
 # Validate all XML files in the repository (unless excluded).
 #
 
-set +e # Do not fail on first error
+set -e # Do not fail on first error
 
 # Search for all XML files in the current directory
 REPOSITORY_DIR="."
@@ -20,4 +20,4 @@ dpkg -s libxml2-utils > /dev/null || sudo apt-get -q install libxml2-utils
 # Lint all XML files, except those on the exclude list.
 /usr/bin/xmllint --noout --valid `find $REPOSITORY_DIR -name \*.xml | fgrep -v -f $REPOSITORY_DIR/tools/xmllint-exclusions.txt`
 
-set -e # Fail on firt error
+set -e # Fail on fisrt error

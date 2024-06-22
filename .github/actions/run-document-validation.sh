@@ -1,6 +1,6 @@
 #!/bin/bash
 
-set +e
+set -e
 # Look for help filenames referred to in templates and check that they all exist (in English)
 ERRORS=0
 for filename in `find . -name \*.tpl -exec sed -n -e "s/.*{help[^}]file=\"\([^\"#]\+\)[#\"].*/\1/p" "{}" ";"`; do
