@@ -307,6 +307,7 @@ runs:
         echo "status=:white_check_mark:" >> $GITHUB_OUTPUT
       env:
         APPLICATION: ${{matrix.application ||  inputs.application || github.event.repository.name}}
+        DATASET_BRANCH: ${DATASET_BRANCH}
         DBTYPE: ${{matrix.database == 'pgsql' && 'PostgreSQL' || 'MySQLi'}}
         TEST: ${{matrix.database}}
         APP_BRANCH: ${{inputs.dataset_branch}}
