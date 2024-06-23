@@ -34,6 +34,6 @@ if [ -e "${logFiles[1]}" ]; then
 fi
 
 # Move the remaining logs to the archive folder
-for file in "${logs[@]:2}"; do
+for file in "${logFiles[@]:2}"; do
     mv "${file}" "${archiveFolder}/"
 done
