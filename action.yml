@@ -181,7 +181,6 @@ runs:
       shell: bash
 
     - name:  Run  HTTP Server
-      if: ${{ matrix.test == 'test'}}
       run: |
         cd ~/${{matrix.application ||  inputs.application || github.event.repository.name }} 
         ${{ github.workspace }}/pkp-github-actions/.github/actions/run-http-server.sh
