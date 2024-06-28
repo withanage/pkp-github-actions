@@ -5,9 +5,7 @@ composer --version
 set -e
 
 # Search for composer.json files, and run Composer to install the dependencies.
-composer_output=$(find . -maxdepth 4 -name composer.json -exec bash -c 'composer --no-ansi --working-dir="`dirname {}`" install --optimize-autoloader' ";")
-echo $composer_composer_output
-exit 1
+find . -maxdepth 4 -name composer.json -exec bash -c 'composer --no-ansi --working-dir="`dirname {}`" install --optimize-autoloader' ";"
 
 
 sudo npm cache clean -f
