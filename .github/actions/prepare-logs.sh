@@ -27,13 +27,22 @@ yesterday=$(date -d "1 day ago" +"%Y%m%d")
 
 # Rename the first two logs
 if [ -e "${logFiles[0]}" ]; then
-	mv "${logFiles[0]}" "${eventLogsFolder}/${today}.log"
+    if cmp -s ${logFiles[0]} "${eventLogsFolder}/${today}.log"; then
+      echo "${eventLogsFolder}/${today}.log  No move needed."
+    else
+       mv "${logFiles[0]}" "${eventLogsFolder}/${today}.log"
+    fi
 fi
 if [ -e "${logFiles[1]}" ]; then
-	mv "${logFiles[1]}" "${eventLogsFolder}/${yesterday}.log"
+   if cmp -s ${logFiles[1]} "${eventLogsFolder}/${yesterday}.log"; then
+      echo "${eventLogsFolder}/${yesterday}.log  No move needed."
+   else
+      mv "${logFiles[1]}" "${eventLogsFolder}/${yesterday}.log"
+  fi
+
 fi
 
 # Move the remaining logs to the archive folder
 for file in "${logFiles[@]:2}"; do
-    mv "${file}" "${archiveFolder}/"
+    mv -n "${file}" "${archiveFolder}/"
 done

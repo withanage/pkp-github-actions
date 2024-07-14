@@ -8,18 +8,8 @@ export DBUSERNAME=${APPLICATION}-ci # Database username
 export DBPASSWORD=${APPLICATION}-ci # Database password
 
 
-cp -rf ~/datasets/${APPLICATION}/${DATASET_BRANCH}/${TEST}/files/* files/
-cp -rf ~/datasets/${APPLICATION}/${DATASET_BRANCH}/${TEST}/public/* public/
-cp  ~/datasets/${APPLICATION}/${DATASET_BRANCH}/${TEST}/config.inc.php .
 
-if [[ "${APP_BRANCH}" == "stable-3_4_0"  || "${APP_BRANCH}" == "main"  ]]; then
-patch -p1 < ~/datasets/upgrade/3_4_0-add-email-config.diff
-patch -p1 < ~/datasets/upgrade/3_4_0-update-locale.diff
-fi
-
-
-~/datasets/tools/dbclient.sh < ~/datasets/${APPLICATION}/${DATASET_BRANCH}/${TEST}/database.sql
-
+source  $GITHUB_WORKSPACE/pkp-github-actions/.github/actions/ingest_datasets.sh
 source  $GITHUB_WORKSPACE/pkp-github-actions/.github/actions/prepare-logs.sh
 
 

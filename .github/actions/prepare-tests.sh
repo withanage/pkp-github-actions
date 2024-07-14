@@ -13,6 +13,14 @@ export FILESDIR=files # Files directory (relative to application directory -- do
 export DATABASEDUMP=database.sql.gz # Path and filename where a database dump can be created/accessed
 export FILESDUMP=files.tar.gz # Path and filename where a database dump can be created/accessed
 
+export CYPRESS_DBHOST='127.0.0.1' # Database hostname
+export CYPRESS_BASE_URL='http://localhost:80'
+export CYPRESS_DBNAME=${APPLICATION}-ci # Database name
+export CYPRESS_DBUSERNAME=${APPLICATION}-ci # Database username
+export CYPRESS_DBPASSWORD=${APPLICATION}-ci # Database password
+export CYPRESS_FILESDIR=files
+echo '{ "baseUrl": "'${CYPRESS_BASE_URL}'", "DBHOST": "'${CYPRESS_DBHOST}'", "DBUSERNAME": "'$CYPRESS_DBUSERNAME'","DBPASSWORD": "'$CYPRESS_DBPASSWORD'","DBNAME": "'$CYPRESS_DBNAME'",  "FILESDIR": "'$CYPRESS_FILESDIR'"}' > cypress.env.json
+
 # Install required software
 sudo apt-get install -q -y libbiblio-citation-parser-perl libhtml-parser-perl
 
@@ -55,8 +63,9 @@ if [[ "$DISABLE_PATH_INFO" == "1" ]]; then
 fi
 
 # Make the files directory (this will be files_dir in config.inc.php after installation).
-mkdir -p files
-mkdir -p public
-
-
-set +e
+if [ ! -d "files" ]; then
+    mkdir files
+fi
+if [ ! -d "public" ]; then
+    mkdir public
+fi
