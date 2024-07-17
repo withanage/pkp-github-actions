@@ -16,8 +16,8 @@ source ~/.bashrc
 # Install node modules
 npm i g -npm
 if [[ "$NODE_VERSION" -gt "13"  ]]; then
-npm i @vue/cli-service
-npm i cypress@12.17.4
+  npm i @vue/cli-service
+  npm i cypress@12.17.4
 fi
 npm install
 npm run build

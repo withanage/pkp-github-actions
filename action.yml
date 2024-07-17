@@ -40,6 +40,16 @@ runs:
     - name: Set environment variables
       run: |
         echo "APPLICATION=${{matrix.application ||  inputs.application || github.event.pull_request.head.repo.name || github.event.repository.name }}" >> $GITHUB_ENV
+        echo "TEST=${{matrix.database}}" >> $GITHUB_ENV
+        echo "NODE_VERSION=${{inputs.node_version}}" >> $GITHUB_ENV
+        echo "DBTYPE=${{matrix.database == 'pgsql' && 'PostgreSQL' || 'MySQLi'}}" >> $GITHUB_ENV
+        echo "DBHOST=localhost" >> $GITHUB_ENV
+        echo "DBNAME=${{matrix.application ||  inputs.application || github.event.pull_request.head.repo.name || github.event.repository.name }}-ci" >> $GITHUB_ENV
+        echo "DBUSERNAME=${{matrix.application ||  inputs.application || github.event.pull_request.head.repo.name || github.event.repository.name }}-ci" >> $GITHUB_ENV
+        echo "DBPASSWORD=${{matrix.application ||  inputs.application || github.event.pull_request.head.repo.name || github.event.repository.name }}-ci" >> $GITHUB_ENV
+        echo "FILESDIR=files" >> $GITHUB_ENV
+        echo "DATABASEDUMP=database.sql.gz" >> $GITHUB_ENV
+        echo "FILESDUMP=files.tar.gz" >> $GITHUB_ENV
       shell: bash
 
     - name: Install postgres server
@@ -158,8 +168,6 @@ runs:
         echo "Install  dependencies"
         cd ~/${{matrix.application ||  inputs.application || github.event.repository.name }}
          ${{ github.workspace }}/pkp-github-actions/.github/actions/install-dependencies.sh
-      env:
-        NODE_VERSION: ${{inputs.node_version}}
       shell: bash
 
     - name: Create additional directories
@@ -209,8 +217,6 @@ runs:
         cd ~/${{matrix.application ||  inputs.application || github.event.repository.name }} 
         ${{ github.workspace }}/pkp-github-actions/.github/actions/prepare-tests.sh
       shell: bash
-      env:
-        TEST: ${{matrix.database}}
 
     - name: Run  data integration tests
       id: data-integration-tests
@@ -228,7 +234,6 @@ runs:
       env:
         BASEURL: http://localhost
         CYPRESS_DBTYPE: ${{matrix.database=='pgsql' && 'PostgreSQL' || 'MySQLi'}}
-        NODE_VERSION: ${{inputs.node_version}}
 
 
     - name: Dump database
@@ -238,8 +243,6 @@ runs:
         cd ~/${{matrix.application ||  inputs.application || github.event.repository.name }}
         ${{ github.workspace }}/pkp-github-actions/.github/actions/dump-database.sh
       shell: bash
-      env:
-        DBTYPE: ${{matrix.database=='pgsql' && 'PostgreSQL' || 'MySQLi'}}
 
     - name: Upload datasets  (SAVE Build)
       if: ${{matrix.SAVE_BUILD == 'save_build' && github.repository_owner == 'pkp' && inputs.dataset_branch != ''  }}
@@ -250,7 +253,6 @@ runs:
 
       shell: bash
       env:
-        TEST: ${{matrix.database}}
         DATASET_BRANCH: ${{inputs.dataset_branch}}
         DATASETS_ACCESS_KEY: ${{inputs.DATASETS_ACCESS_KEY}}
 
@@ -270,7 +272,6 @@ runs:
       env:
         BASEURL: http://localhost
         CYPRESS_DBTYPE: ${{matrix.database=='pgsql' && 'PostgreSQL' || 'MySQLi'}}
-        NODE_VERSION: ${{inputs.node_version}}
 
     - name: Run unit tests
       id: unit-test
@@ -286,10 +287,7 @@ runs:
         echo "duration=$duration" >> $GITHUB_OUTPUT
         echo "status=:white_check_mark:" >> $GITHUB_OUTPUT
       shell: bash
-      env:
-        TEST: ${{matrix.database}}
-        DBTYPE: ${{matrix.database == 'pgsql' && 'PostgreSQL' || 'MySQLi'}}
-        NODE_VERSION: ${{inputs.node_version}}
+
 
 
     - name: Download datasets and patch
@@ -306,7 +304,6 @@ runs:
       shell: bash
       env:
         DATABASEDUMP: database.sql.gz
-        DBTYPE: ${{matrix.database == 'pgsql' && 'PostgreSQL' || 'MySQLi'}}
         FILESDUMP: files.tar.gz
         APP_BRANCH: ${{inputs.dataset_branch|| inputs.branch}}
 
@@ -319,8 +316,6 @@ runs:
       shell: bash
       env:
         DATASET_BRANCH: ${{inputs.branch}}
-        TEST: ${{matrix.database}}
-        DBTYPE: ${{matrix.database == 'pgsql' && 'PostgreSQL' || 'MySQLi'}}
 
 
     - name: Run plugin actions for push
@@ -329,8 +324,6 @@ runs:
       shell: bash
       env:
         DATASET_BRANCH: ${{inputs.branch}}
-        DBTYPE: ${{matrix.database == 'pgsql' && 'PostgreSQL' || 'MySQLi'}}
-        TEST: ${{matrix.database}}
         APP_BRANCH: ${{inputs.branch}}
         GITHUB_EVENT_HEAD_REF: ${{ github.head_ref || github.ref_name }}
         GITHUB_EVENT_HEAD_REPO_HTML_URL: 'https://github.com/${{ github.repository}}'
@@ -344,8 +337,6 @@ runs:
       shell: bash
       env:
         DATASET_BRANCH: ${{inputs.branch}}
-        DBTYPE: ${{matrix.database == 'pgsql' && 'PostgreSQL' || 'MySQLi'}}
-        TEST: ${{matrix.database}}
         APP_BRANCH: ${{inputs.dataset_branch}}
         GITHUB_EVENT_HEAD_REF: ${{github.event.pull_request.head.ref}}
         GITHUB_EVENT_HEAD_REPO_HTML_URL: 'https://github.com/${{ github.event.pull_request.head.repo.html_url}}'
@@ -377,8 +368,6 @@ runs:
         echo "status=:white_check_mark:" >> $GITHUB_OUTPUT
       env:
         DATASET_BRANCH: ${DATASET_BRANCH}
-        DBTYPE: ${{matrix.database == 'pgsql' && 'PostgreSQL' || 'MySQLi'}}
-        TEST: ${{matrix.database}}
         APP_BRANCH: ${{inputs.dataset_branch}}
 
       shell: bash
