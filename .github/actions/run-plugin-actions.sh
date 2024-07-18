@@ -9,7 +9,7 @@ cd "${GITHUB_EVENT_HEAD_REPO_NAME}"
 pluginType=$(grep '<type>' version.xml | sed -n 's/.*<type>\(.*\)<\/type>.*/\1/p')
 pluginPath=$(echo "$pluginType" | tr '.' '/')
 
-PLUGIN_DIR=~/"${APPLICATION}"/"${pluginPath}"
+PLUGIN_DIR=~/"${APPLICATION}/${pluginPath}/${GITHUB_EVENT_HEAD_REPO_NAME}"
 
 if [ -d "$PLUGIN_DIR" ]; then
   rm -rf "$PLUGIN_DIR"
@@ -23,3 +23,4 @@ if [ -e "${pluginPath}/${GITHUB_EVENT_HEAD_REPO_NAME}/.github/actions/tests.sh" 
 else
   echo "${pluginPath}/${GITHUB_EVENT_HEAD_REPO_NAME}/.github/actions/tests.sh does not exist"
 fi
+
