@@ -11,6 +11,8 @@ inputs:
     default: 20
   plugin:
     required: false
+  dataset_inject:
+    required: false
   repository:
     required: false
   test:
@@ -39,6 +41,7 @@ runs:
 
     - name: Set environment variables
       run: |
+        echo "Set environment variables"
         echo "APPLICATION=${{matrix.application ||  inputs.application || github.event.pull_request.head.repo.name || github.event.repository.name }}" >> $GITHUB_ENV
         echo "TEST=${{matrix.database}}" >> $GITHUB_ENV
         echo "NODE_VERSION=${{inputs.node_version}}" >> $GITHUB_ENV
@@ -50,6 +53,9 @@ runs:
         echo "FILESDIR=files" >> $GITHUB_ENV
         echo "DATABASEDUMP=database.sql.gz" >> $GITHUB_ENV
         echo "FILESDUMP=files.tar.gz" >> $GITHUB_ENV
+        echo "BASEURL=http://localhost" >> $GITHUB_ENV
+        echo "CYPRESS_DBTYPE=${{matrix.database=='pgsql' && 'PostgreSQL' || 'MySQLi'}}" >> $GITHUB_ENV
+
       shell: bash
 
     - name: Install postgres server
@@ -231,9 +237,6 @@ runs:
         echo "duration=$duration" >> $GITHUB_OUTPUT
         echo "status=:white_check_mark:" >> $GITHUB_OUTPUT
       shell: bash
-      env:
-        BASEURL: http://localhost
-        CYPRESS_DBTYPE: ${{matrix.database=='pgsql' && 'PostgreSQL' || 'MySQLi'}}
 
 
     - name: Dump database
@@ -269,9 +272,6 @@ runs:
         echo "duration=$duration" >> $GITHUB_OUTPUT
         echo "status=:white_check_mark:" >> $GITHUB_OUTPUT
       shell: bash
-      env:
-        BASEURL: http://localhost
-        CYPRESS_DBTYPE: ${{matrix.database=='pgsql' && 'PostgreSQL' || 'MySQLi'}}
 
     - name: Run unit tests
       id: unit-test
@@ -288,35 +288,31 @@ runs:
         echo "status=:white_check_mark:" >> $GITHUB_OUTPUT
       shell: bash
 
-
-
-    - name: Download datasets and patch
+    - name: Download datasets
       if: ${{  (matrix.upgrade== 'upgrade' &&  matrix.test == 'test') || inputs.plugin == 'true'}}
       run: |
-        echo "Download datasets and patch"
+        echo "Download datasets "
         cd ~/
         if [ -d "datasets" ]; then
           rm -rf datasets
         fi
         git clone --depth 1 https://github.com/pkp/datasets  datasets
-        
-
       shell: bash
       env:
         DATABASEDUMP: database.sql.gz
         FILESDUMP: files.tar.gz
         APP_BRANCH: ${{inputs.dataset_branch|| inputs.branch}}
 
-    - name: Ingest datasets for plugin
-      if: ${{inputs.plugin == 'true' }}
+    - name: Ingest datasets
+      if: ${{inputs.plugin == 'true' && inputs.dataset_inject == 'true' }}
       run: |
         echo  "Ingest datasets for plugin"
         cd ~/${{matrix.application}}
         source ${{ github.workspace }}/pkp-github-actions/.github/actions/ingest_datasets.sh
       shell: bash
       env:
+        APP_BRANCH: ${{inputs.branch}}
         DATASET_BRANCH: ${{inputs.branch}}
-
 
     - name: Run plugin actions for push
       if: ${{  github.event_name  == 'push' &&  inputs.plugin == 'true'}}
@@ -329,20 +325,16 @@ runs:
         GITHUB_EVENT_HEAD_REPO_HTML_URL: 'https://github.com/${{ github.repository}}'
         GITHUB_EVENT_HEAD_REPO_NAME: ${{ github.event.repository.name }}
 
-
-
     - name: Run plugin actions for pull request
       if: ${{github.event_name  == 'pull_request' &&  inputs.plugin == 'true'}}
       run:  source  ${{ github.workspace }}/pkp-github-actions/.github/actions/run-plugin-actions.sh
       shell: bash
       env:
         DATASET_BRANCH: ${{inputs.branch}}
-        APP_BRANCH: ${{inputs.dataset_branch}}
+        APP_BRANCH: ${{inputs.branch}}
         GITHUB_EVENT_HEAD_REF: ${{github.event.pull_request.head.ref}}
-        GITHUB_EVENT_HEAD_REPO_HTML_URL: 'https://github.com/${{ github.event.pull_request.head.repo.html_url}}'
+        GITHUB_EVENT_HEAD_REPO_HTML_URL: ${{ github.event.pull_request.head.repo.html_url}}
         GITHUB_EVENT_HEAD_REPO_NAME: ${{ github.event.pull_request.head.repo.name }}
-
-
 
 
     - name: Run upgrade tests
@@ -393,7 +385,6 @@ runs:
       shell: bash
 
 
-
     - uses: actions/upload-artifact@v4
       if: failure()
       with:
@@ -407,6 +398,7 @@ runs:
         name: ${{matrix.database }}-${{ matrix.php-version }}-http-access.log
         path: ~/${{ matrix.application ||  inputs.application || github.event.repository.name }}/access.log
         overwrite: false
+
 
     - name: Setup tmate session by failure
       if: ${{ failure() && inputs.DEBUG_IN_TMATE == 'true' }}
