@@ -2,7 +2,10 @@
 
 
 set -e # Fail on first error
-
+if [ "${TERM:-}" = "" ]; then
+  echo "Setting TERM to dumb" # makes tput happy
+  TERM="dumb"
+fi
 cd ~/
 git clone -b "${GITHUB_EVENT_HEAD_REF}" "${GITHUB_EVENT_HEAD_REPO_HTML_URL}" "${GITHUB_EVENT_HEAD_REPO_NAME}" --depth 1
 cd "${GITHUB_EVENT_HEAD_REPO_NAME}"
