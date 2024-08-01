@@ -104,7 +104,7 @@ while getopts "CPcpdRJj" opt; do
     export XDEBUG_MODE=coverage
   fi
 
-  $PHPUNIT $DEBUG -v ${TEST_SUITES%%,}
+  $PHPUNIT $DEBUG ${TEST_SUITES%%,}
 
   if [ "$DO_COVERAGE" -eq 1 ]; then
     cat lib/pkp/tests/results/coverage.txt
@@ -140,19 +140,19 @@ if [[ "$NODE_VERSION" -lt "15"  ]]; then
   phpunit='php lib/pkp/lib/vendor/phpunit/phpunit/phpunit'
 
   if [ \( "$DO_ALL" -eq 1 \) -o \( "$DO_PKP_CLASSES" -eq 1 \) ]; then
-  	$phpunit $DEBUG $TEST_CONF1 -v lib/pkp/tests/classes
+  	$phpunit $DEBUG $TEST_CONF1 lib/pkp/tests/classes
   fi
 
   if [ \( "$DO_ALL" -eq 1 \) -o \( "$DO_PKP_PLUGINS" -eq 1 \) ]; then
-  	$phpunit $DEBUG $TEST_CONF2 -v lib/pkp/plugins
+  	$phpunit $DEBUG $TEST_CONF2 lib/pkp/plugins
   fi
 
   if [ \( "$DO_ALL" -eq 1 \) -o \( "$DO_APP_CLASSES" -eq 1 \) ]; then
-  	$phpunit $DEBUG $TEST_CONF1 -v tests/classes
+  	$phpunit $DEBUG $TEST_CONF1 tests/classes
   fi
 
   if [ \( "$DO_ALL" -eq 1 \) -o \( "$DO_APP_PLUGINS" -eq 1 \) ]; then
-  	find plugins -maxdepth 3 -name tests -type d -exec $phpunit $DEBUG $TEST_CONF2 -v "{}" ";"
+  	find plugins -maxdepth 3 -name tests -type d -exec $phpunit $DEBUG $TEST_CONF2 "{}" ";"
   fi
 
 
