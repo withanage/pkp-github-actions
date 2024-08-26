@@ -58,6 +58,11 @@ runs:
 
       shell: bash
 
+    - name:  Run apt update
+      run: |
+        sudo apt-get update
+      shell: bash
+
     - name: Install postgres server
       if: ${{matrix.database == 'pgsql'}}
       run: |
