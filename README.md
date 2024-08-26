@@ -16,7 +16,9 @@
     -   [Integration matrix](#integration-matrix)
     -   [References](#references)
     -   [Acknowledgements](#acknowledgements)
+    -  
 # PKP Github actions 
+
 
 The PKP GitHub Actions facilitate automated testing for continuous integration within OJS, OMP, and OPS.
 
@@ -24,6 +26,8 @@ Presently, PKP applications incorporate unit tests (PHPUnit) and integrated test
 These tests undergo automated execution within a virtual environment, serving to prevent regressions and ensure 
 the functionality of tested workflow steps.
 
+## Plugins 
+please refer to [plugins documentation] (READDME_plugins.md)
 ## Usage
 GitHub Actions have been integrated into the main and latest stable branches of PKP applications, 
 and their configuration can be found in the following file_path `.github/workflows/main.yml`.
@@ -150,25 +154,9 @@ This scenario  assumes, you are only doing enhancements or bugfixes to ojs,omp o
 3. Commit and push to your user git repository
 4. Create your PR to  https://github.com/pkp/$application
   
-###  Scenario 2: Only pkp-lib 
 
-This scenario assumes, you are doing overall changes to the pkp-lib repository, which affects ojs, omp and ops.
-
-1. In your application, navigate to the `lib/pkp` folder by running `cd lib/pkp`. After updating the git submodule, your remote source should be configured accordingly.
-`  https://github.com/pkp/pkp-lib`
-2. Add your repository "lib-pkp" as a source.
- `git remote add your_username https://github.com/your_username/pkp-lib`
- `git fetch origin stable-3_4_0` 
- `git checkout -b feature_branch refs/remotes/origin/stable-3_4_0  `
-3. Perform your modifications in the feature branch.
-4.  Push the changes to your pkp-lib repository. Push triggers tests of your changes
- `git push your_username feature_branch `
-This will trigger   tests against omp,ojs,ops automatically.If you would like to expand or reduce the tests , you can change the application matrix.
-`https://github.com/your_username/pkp-lib/tree/feature_branch/.github/workflows`
-
- Info: your ojs, omp and ops tests are running against the selected git branch. 
  
-### Scenario 3: Application + pkp-lib
+### Scenario 2: Application + pkp-lib
 
 If you are changing  both the pkp-lib and the application, follow one of the following strategies.
 #### Step 1: Modify .gitmodules file in the application  e.g. ojs
