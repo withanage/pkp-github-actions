@@ -27,7 +27,7 @@ These tests undergo automated execution within a virtual environment, serving to
 the functionality of tested workflow steps.
 
 ## Plugins 
-please refer to [plugins documentation] (READDME_plugins.md)
+please refer to [plugins documentation](READDME_plugins.md)
 ## Usage
 GitHub Actions have been integrated into the main and latest stable branches of PKP applications, 
 and their configuration can be found in the following file_path `.github/workflows/main.yml`.
