@@ -5,8 +5,10 @@
 # runAllTests.sh [options]
 #  -C Include class tests in lib/pkp.
 #  -P Include plugin tests in lib/pkp.
+#  -J Include job tests in lib/pkp.
 #  -c Include class tests in application.
 #  -p Include plugin tests in application.
+#  -j Include job tests in application.
 #  -d Display debug output from phpunit.
 # If no options are specified, then all tests will be executed.
 #
@@ -47,18 +49,18 @@ if [[ "$NODE_VERSION" -gt "15"  ]]; then
   # Parse arguments
 while getopts "CPcpdRJj" opt; do
   	case "$opt" in
-		J)	DO_ALL=0
-			DO_PKP_JOBS=1
-			;;
+      J)	DO_ALL=0
+        DO_PKP_JOBS=1
+        ;;
   		C)	DO_ALL=0
   			DO_PKP_CLASSES=1
   			;;
   		P)	DO_ALL=0
   			DO_PKP_PLUGINS=1
   			;;
-		j)	DO_ALL=0
-			DO_APP_JOBS=1
-			;;
+      j)	DO_ALL=0
+        DO_APP_JOBS=1
+        ;;
   		c)	DO_ALL=0
   			DO_APP_CLASSES=1
   			;;
