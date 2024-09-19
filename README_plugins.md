@@ -36,7 +36,7 @@ The content of the yml file should look similar to the following content.
 18:     steps:
 19:       - uses: pkp/pkp-github-actions@v1
 20:         with:
-21:           node_version: 20
+21:           node_version: 20 # node 16 for ojs 3.4 , node 12 for ojs 3.3
 22:           branch: main
 23:           repository: pkp
 24:           plugin: true
