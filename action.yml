@@ -71,6 +71,7 @@ runs:
         echo "Install postgres server"
         sudo apt install postgresql postgresql-contrib
         sudo dpkg-reconfigure locales
+        version=$(lsb_release -rs)
         if [[ $version == "22."* ]]; then
             sudo sed -i -E 's\peer|scram-sha-256\trust\g' /etc/postgresql/14/main/pg_hba.conf
         elif [[ $version == "24."* ]]; then
