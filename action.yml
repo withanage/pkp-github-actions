@@ -61,13 +61,15 @@ runs:
     - name:  Run apt update
       run: |
         sudo apt-get update
+        sudo apt-get upgrade
+
       shell: bash
 
     - name: Install postgres server
       if: ${{matrix.database == 'pgsql'}}
       run: |
         echo "Install postgres server"
-        sudo apt install postgresql-14 postgresql-contrib
+        sudo apt install postgresql postgresql-contrib
         sudo dpkg-reconfigure locales
         sudo sed -i -E 's\peer|scram-sha-256\trust\g' /etc/postgresql/14/main/pg_hba.conf
       shell: bash
