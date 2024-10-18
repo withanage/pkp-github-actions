@@ -71,12 +71,10 @@ runs:
         echo "Install postgres server"
         sudo apt install postgresql postgresql-contrib
         sudo dpkg-reconfigure locales
-        version=$(lsb_release -rs)
-        if [[ $version == "22."* ]]; then
-            sudo sed -i -E 's\peer|scram-sha-256\trust\g' /etc/postgresql/14/main/pg_hba.conf
-        elif [[ $version == "24."* ]]; then
-              sudo sed -i -E 's\peer|scram-sha-256\trust\g' /etc/postgresql/16/main/pg_hba.conf
-        fi
+        sudo service postgresql start
+        PSQL_MAJOR_VERSION=$(psql --version | awk '{print $3}' | cut -d'.' -f1)
+        sudo sed -i -E 's\peer|scram-sha-256\trust\g' /etc/postgresql/${PSQL_MAJOR_VERSION}/main/pg_hba.conf
+
       shell: bash
 
     - name: Install mysql server
