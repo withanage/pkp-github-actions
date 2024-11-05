@@ -33,11 +33,17 @@ inputs:
 runs:
   using: "composite"
   steps:
+
     - uses: actions/checkout@v4
       with:
         repository: 'pkp/pkp-github-actions'
         path: pkp-github-actions
         ref: v1
+
+    - uses: upgundecha/start-sendria-github-action@v1.0.0
+      with:
+        smtp-port: 1025
+        http-port: 1080
 
     - name: Set environment variables
       run: |
