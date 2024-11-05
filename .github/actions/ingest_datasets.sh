@@ -18,6 +18,7 @@ fi
 cp -rf ~/datasets/${APPLICATION}/${DATASET_BRANCH}/${TEST}/files/* files/
 cp -rf ~/datasets/${APPLICATION}/${DATASET_BRANCH}/${TEST}/public/* public/
 cp  ~/datasets/${APPLICATION}/${DATASET_BRANCH}/${TEST}/config.inc.php .
+source  $GITHUB_WORKSPACE/pkp-github-actions/.github/actions/change-configuration.sh
 
 if [[ "${APP_BRANCH}" == "stable-3_4_0"  || "${APP_BRANCH}" == "main"  ]]; then
   PATCH1=~/datasets/upgrade/3_4_0-add-email-config.diff
