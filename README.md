@@ -1,4 +1,5 @@
 -   [PKP Github actions](#pkp-github-actions)
+    -   [Requirements](#Requirements)
     -   [Usage](#usage)
         -   [Input variables](#input-variables)
     -   [Default configuration for
@@ -32,6 +33,17 @@ please refer to [plugins documentation](README_plugins.md)
 GitHub Actions have been integrated into the main and latest stable branches of PKP applications, 
 and their configuration can be found in the following file_path `.github/workflows/main.yml`.
 
+## Requirements
+In main branch or OJS Versions released after 3.5, you will need the following  email setup to locally  run the cypress tests.
+
+Sendria: mail server https://pypi.org/project/sendria/
+Add the following mail settings to `config.inc.php` file
+```
+default = smtp
+smtp = On
+smtp_server = localhost
+smtp_port = 1025
+```
 ### Input variables
 
 
