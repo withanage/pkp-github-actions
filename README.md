@@ -34,10 +34,14 @@ GitHub Actions have been integrated into the main and latest stable branches of 
 and their configuration can be found in the following file_path `.github/workflows/main.yml`.
 
 ## Requirements
+
 In main branch or OJS Versions released after 3.5, you will need the following  email setup to locally  run the cypress tests.
 
-Sendria: mail server https://pypi.org/project/sendria/
+Install and run  Sendria  mail server  locally
+- ```python3 -m pip install sendria```  [see details](https://pypi.org/project/sendria/)
+
 Add the following mail settings to `config.inc.php` file
+
 ```
 default = smtp
 smtp = On
