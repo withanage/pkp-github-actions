@@ -1,7 +1,6 @@
 #!/bin/bash
 
 set -e
-sudo apt install python2
 wget https://bootstrap.pypa.io/pip/2.7/get-pip.py
 sudo python2 get-pip.py
 sudo pip install six
