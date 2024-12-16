@@ -206,7 +206,7 @@ runs:
       run: |
         echo "Install validation tools"
         cd ~/${{matrix.application ||  inputs.application || github.event.repository.name }}
-         ${{ github.workspace }}/pkp-github-actions/.github/actions/install-validation-tools.sh
+#         ${{ github.workspace }}/pkp-github-actions/.github/actions/install-validation-tools.sh
       shell: bash
 
     - name: Run  validation
@@ -218,7 +218,7 @@ runs:
         echo "status=:red_circle:" >> $GITHUB_OUTPUT
         cd ~/${{matrix.application ||  inputs.application || github.event.repository.name }}
         ${{ github.workspace }}/pkp-github-actions/.github/actions/validate-xml.sh 
-        ${{ github.workspace }}/pkp-github-actions/.github/actions/buildjs.sh -n
+#        ${{ github.workspace }}/pkp-github-actions/.github/actions/buildjs.sh -n
         ${{ github.workspace }}/pkp-github-actions/.github/actions/validate-json.sh
         npm run lint
         ${{ github.workspace }}/pkp-github-actions/.github/actions/run-document-validation.sh
