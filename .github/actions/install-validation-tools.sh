@@ -6,6 +6,7 @@ sudo tar xzf Python-2.7.9.tgz
 cd Python-2.7.9
 sudo ./configure --enable-optimizations
 sudo make altinstall
+cd ../
 wget https://bootstrap.pypa.io/pip/2.7/get-pip.py
 sudo python2 get-pip.py
 sudo pip install six
