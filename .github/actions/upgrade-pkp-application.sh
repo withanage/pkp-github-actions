@@ -8,7 +8,6 @@ export DBUSERNAME=${APPLICATION}-ci # Database username
 export DBPASSWORD=${APPLICATION}-ci # Database password
 
 
-
 source  $GITHUB_WORKSPACE/pkp-github-actions/.github/actions/ingest_datasets.sh
 source  $GITHUB_WORKSPACE/pkp-github-actions/.github/actions/prepare-logs.sh
 

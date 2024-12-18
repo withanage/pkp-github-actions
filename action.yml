@@ -64,20 +64,15 @@ runs:
 
       shell: bash
 
-    - name:  Run apt update
-      run: |
-        sudo apt-get update
-        sudo apt-get upgrade
-
-      shell: bash
-
     - name: Install postgres server
       if: ${{matrix.database == 'pgsql'}}
       run: |
         echo "Install postgres server"
-        sudo apt install postgresql postgresql-contrib
+        sudo sh -c 'sudo echo "deb http://apt.postgresql.org/pub/repos/apt $(lsb_release -cs)-pgdg main" > /etc/apt/sources.list.d/pgdg.list'
+        sudo wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc | sudo apt-key add -
+        sudo apt-get update -y
+        sudo apt-get install postgresql-14 -y
         sudo dpkg-reconfigure locales
-        
         PSQL_MAJOR_VERSION=$(psql --version | awk '{print $3}' | cut -d'.' -f1)
         sudo sed -i -E 's\peer|scram-sha-256\trust\g' /etc/postgresql/${PSQL_MAJOR_VERSION}/main/pg_hba.conf
         sudo systemctl restart postgresql
