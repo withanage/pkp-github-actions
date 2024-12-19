@@ -33,7 +33,6 @@ if [[ "$TEST" == "pgsql" ]]; then
 	psql -c "CREATE DATABASE \"${DBNAME}\";" -U postgres
 	psql -c "CREATE USER \"${DBUSERNAME}\" WITH PASSWORD '${DBPASSWORD}';" -U postgres
 	psql -c "GRANT ALL PRIVILEGES ON DATABASE \"${DBNAME}\" TO \"${DBUSERNAME}\";" -U postgres
-	psql -c "GRANT CREATE ON SCHEMA public TO \"${DBUSERNAME}\";" -U postgres
 	echo "${DBHOST}:5432:${DBNAME}:${DBUSERNAME}:${DBPASSWORD}" > ~/.pgpass
 	chmod 600 ~/.pgpass
 	export DBTYPE=PostgreSQL
