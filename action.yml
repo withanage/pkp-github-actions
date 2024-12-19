@@ -70,7 +70,7 @@ runs:
 
 
     - name: Configure postgres server
-      if: ${{matrix.database == 'pgsqlsss'}}
+      if: ${{matrix.database == 'pgsql'}}
       run: |
         echo "Configure postgres server"
         sudo sed -i -E 's\peer|scram-sha-256\trust\g' /etc/postgresql/14/main/pg_hba.conf
