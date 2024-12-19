@@ -69,10 +69,12 @@ runs:
       shell: bash
 
 
-    - name: Install postgres server
+    - name: Configure postgres server
       if: ${{matrix.database == 'pgsqlsss'}}
       run: |
+        echo "Configure postgres server"
         sudo sed -i -E 's\peer|scram-sha-256\trust\g' /etc/postgresql/14/main/pg_hba.conf
+        sudo update-alternatives --install /usr/bin/psql psql /usr/lib/postgresql/14/bin/psql 1
         sudo systemctl restart postgresql
 
       shell: bash
