@@ -36,7 +36,7 @@ runs:
 
     - uses: actions/checkout@v4
       with:
-        repository: 'pkp/pkp-github-actions'
+        repository: 'xmlFlow/pkp-github-actions'
         path: pkp-github-actions
         ref: v1
 
@@ -65,15 +65,16 @@ runs:
         echo "FILESDUMP=files.tar.gz" >> $GITHUB_ENV
         echo "BASEURL=http://localhost" >> $GITHUB_ENV
         echo "CYPRESS_DBTYPE=${{matrix.database=='pgsql' && 'PostgreSQL' || 'MySQLi'}}" >> $GITHUB_ENV
+
       shell: bash
 
+
     - name: Install postgres server
-      if: ${{matrix.database == 'pgsql'}}
+      if: ${{matrix.database == 'pgsqlsss'}}
       run: |
-        echo "Install postgres server"
-        PSQL_MAJOR_VERSION=$(psql --version | awk '{print $3}' | cut -d'.' -f1)
-        sudo sed -i -E 's\peer|scram-sha-256\trust\g' /etc/postgresql/${PSQL_MAJOR_VERSION}/main/pg_hba.conf
+        sudo sed -i -E 's\peer|scram-sha-256\trust\g' /etc/postgresql/14/main/pg_hba.conf
         sudo systemctl restart postgresql
+
       shell: bash
 
     - name: Install mysql server
