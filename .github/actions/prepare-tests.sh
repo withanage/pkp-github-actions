@@ -27,7 +27,7 @@ sudo apt-get install -q -y libbiblio-citation-parser-perl libhtml-parser-perl
 
 # Create the database and grant permissions.
 if [[ "$TEST" == "pgsql" ]]; then
-  sudo service postgresql start
+  sudo service postgresql restart
 	psql -c "DROP DATABASE IF EXISTS \"${DBNAME}\";" -U postgres
   psql -c "DROP USER IF EXISTS  \"${DBUSERNAME}\" ;" -U postgres
 	psql -c "CREATE DATABASE \"${DBNAME}\";" -U postgres

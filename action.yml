@@ -65,14 +65,16 @@ runs:
         echo "FILESDUMP=files.tar.gz" >> $GITHUB_ENV
         echo "BASEURL=http://localhost" >> $GITHUB_ENV
         echo "CYPRESS_DBTYPE=${{matrix.database=='pgsql' && 'PostgreSQL' || 'MySQLi'}}" >> $GITHUB_ENV
+
       shell: bash
 
-    - name: Install postgres server
+
+    - name: Configure postgres server
       if: ${{matrix.database == 'pgsql'}}
       run: |
-        echo "Install postgres server"
-        PSQL_MAJOR_VERSION=$(psql --version | awk '{print $3}' | cut -d'.' -f1)
-        sudo sed -i -E 's\peer|scram-sha-256\trust\g' /etc/postgresql/${PSQL_MAJOR_VERSION}/main/pg_hba.conf
+        echo "Configure postgres server"
+        sudo sed -i -E 's\peer|scram-sha-256\trust\g' /etc/postgresql/14/main/pg_hba.conf
+        sudo update-alternatives --install /usr/bin/psql psql /usr/lib/postgresql/14/bin/psql 1
         sudo systemctl restart postgresql
       shell: bash
 
