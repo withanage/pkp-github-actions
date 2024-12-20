@@ -18,8 +18,8 @@ php tools/upgrade.php upgrade
 
 if [[ "$TEST" == "pgsql" ]]; then
 
-  psql -c "DROP DATABASE \"${DBNAME}\";" -U postgres
-  psql -c "DROP USER \"${DBUSERNAME}\" ;" -U postgres
+  sudo -u postgres psql -c "DROP DATABASE \"${DBNAME}\";" -U postgres
+  sudo -u postgres psql -c "DROP USER \"${DBUSERNAME}\" ;" -U postgres
 
 elif [[ "$TEST" == "mysql" ]]; then
 
