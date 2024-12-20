@@ -19,7 +19,7 @@ set -e
 
 case "$DBTYPE" in
 	PostgreSQL)
-		psql "$@" --username=$DBUSERNAME --host=$DBHOST $DBNAME
+		sudo -u postgres psql "$@" --username=$DBUSERNAME --host=$DBHOST $DBNAME
 		;;
 	MySQL|MySQLi|MariaDB)
 		mysql "$@" --user=$DBUSERNAME --password=$DBPASSWORD --host=$DBHOST $DBNAME

@@ -42,7 +42,7 @@ runs:
 
     - uses: tj-actions/install-postgresql@v3
       with:
-        postgresql-version: 14
+        postgresql-version: 16
 
     - uses: upgundecha/start-sendria-github-action@v1.0.0
       with:
@@ -73,8 +73,7 @@ runs:
       if: ${{matrix.database == 'pgsql'}}
       run: |
         echo "Configure postgres server"
-        sudo sed -i -E 's\peer|scram-sha-256\trust\g' /etc/postgresql/14/main/pg_hba.conf
-        sudo update-alternatives --install /usr/bin/psql psql /usr/lib/postgresql/14/bin/psql 1
+        sudo sed -i -E 's\peer|scram-sha-256\trust\g' /etc/postgresql/16/main/pg_hba.conf
         sudo systemctl restart postgresql
       shell: bash
 

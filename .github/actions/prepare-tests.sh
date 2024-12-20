@@ -27,14 +27,14 @@ sudo apt-get install -q -y libbiblio-citation-parser-perl libhtml-parser-perl
 
 # Create the database and grant permissions.
 if [[ "$TEST" == "pgsql" ]]; then
+  echo "${DBHOST}:5432:${DBNAME}:${DBUSERNAME}:${DBPASSWORD}" > ~/.pgpass
+  chmod 600 ~/.pgpass
   sudo service postgresql restart
-	psql -c "DROP DATABASE IF EXISTS \"${DBNAME}\";" -U postgres
-  psql -c "DROP USER IF EXISTS  \"${DBUSERNAME}\" ;" -U postgres
-	psql -c "CREATE DATABASE \"${DBNAME}\";" -U postgres
-	psql -c "CREATE USER \"${DBUSERNAME}\" WITH PASSWORD '${DBPASSWORD}';" -U postgres
-	psql -c "GRANT ALL PRIVILEGES ON DATABASE \"${DBNAME}\" TO \"${DBUSERNAME}\";" -U postgres
-	echo "${DBHOST}:5432:${DBNAME}:${DBUSERNAME}:${DBPASSWORD}" > ~/.pgpass
-	chmod 600 ~/.pgpass
+	sudo -u postgres psql -c "DROP DATABASE IF EXISTS \"${DBNAME}\";" -U postgres
+  sudo -u postgres psql -c "DROP USER IF EXISTS  \"${DBUSERNAME}\" ;" -U postgres
+  sudo -u postgres psql -c "CREATE USER \"${DBUSERNAME}\" WITH PASSWORD '${DBPASSWORD}';" -U postgres
+  sudo -u postgres psql -c "CREATE DATABASE  \"${DBNAME}\" OWNER \"${DBUSERNAME}\" ;" -U postgres
+
 	export DBTYPE=PostgreSQL
 elif [[ "$TEST" == "mysql" ]]; then
 	sudo service mysql start
