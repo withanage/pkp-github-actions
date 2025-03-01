@@ -1,5 +1,13 @@
 #!/bin/bash
 
+# @file actions/run-http-server.sh
+#
+# Copyright (c) 2014-2025 Simon Fraser University
+# Copyright (c) 2010-2025 John Willinsky
+# Distributed under the GNU GPL v3. For full terms see the file docs/COPYING.
+#
+# Script to run PHP built-in web server
+
 sudo apt-get install socat
 sudo socat TCP-LISTEN:80,fork,reuseaddr TCP:localhost:8000 &
 

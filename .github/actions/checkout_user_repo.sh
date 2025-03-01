@@ -1,4 +1,13 @@
 #!/bin/bash
+
+# @file actions/checkout_user_repo.sh
+#
+# Copyright (c) 2014-2025 Simon Fraser University
+# Copyright (c) 2010-2025 John Willinsky
+# Distributed under the GNU GPL v3. For full terms see the file docs/COPYING.
+#
+# Script to check out the third party Github repo, if necessary
+
 last_commit_message=$(git log -1 --pretty=%B)
 echo $last_commit_message
 pattern='##(.*)##'

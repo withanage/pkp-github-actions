@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# @file tools/travis/run-tests.sh
+# @file actions/upload-to-datasets-repository.sh
 #
 # Copyright (c) 2014-2021 Simon Fraser University
 # Copyright (c) 2010-2021 John Willinsky

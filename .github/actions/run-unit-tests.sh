@@ -1,5 +1,13 @@
 #!/bin/bash
 
+# @file actions/run-unit-tests.sh
+#
+# Copyright (c) 2014-2025 Simon Fraser University
+# Copyright (c) 2010-2025 John Willinsky
+# Distributed under the GNU GPL v3. For full terms see the file docs/COPYING.
+#
+# Script to run unit test suites
+
 #
 # USAGE:
 # runAllTests.sh [options]
@@ -14,6 +22,7 @@
 #
 # Some tests will certain require environment variables in order to cnfigure
 # Set  environment variables.
+
 export DBHOST=localhost # Database hostname
 export DBNAME=${APPLICATION}-ci # Database name
 export DBUSERNAME=${APPLICATION}-ci # Database username
@@ -22,9 +31,7 @@ export FILESDIR=files # Files directory (relative to application directory -- do
 export DATABASEDUMP=database.sql.gz # Path and filename where a database dump can be created/accessed
 export FILESDUMP=files.tar.gz # Path and filename where a database dump can be created/accessed
 
-
 set -e # Fail on first error
-
 
 ### Command Line Options ###
 

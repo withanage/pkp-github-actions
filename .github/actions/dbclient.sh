@@ -2,8 +2,8 @@
 
 # @file actions/dbclient.sh
 #
-# Copyright (c) 2014-2021 Simon Fraser University
-# Copyright (c) 2010-2021 John Willinsky
+# Copyright (c) 2014-2025 Simon Fraser University
+# Copyright (c) 2010-2025 John Willinsky
 # Distributed under the GNU GPL v3. For full terms see the file docs/COPYING.
 #
 # Connect to the database client.
