@@ -1,5 +1,13 @@
 #!/bin/bash
 
+# @file actions/buildjs.sh
+#
+# Copyright (c) 2014-2025 Simon Fraser University
+# Copyright (c) 2010-2025 John Willinsky
+# Distributed under the GNU GPL v3. For full terms see the file docs/COPYING.
+#
+# Script to adapt the configuration of OJS/OMP/OPS for test SMTP server
+
 set -e
 
 sed -i 's/; smtp_server = mail\.example\.com/smtp_server = localhost/' config.inc.php

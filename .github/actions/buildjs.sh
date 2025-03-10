@@ -1,9 +1,9 @@
 #!/bin/bash
 
-# @file tools/buildjs.sh
+# @file actions/buildjs.sh
 #
-# Copyright (c) 2014-2021 Simon Fraser University
-# Copyright (c) 2010-2021 John Willinsky
+# Copyright (c) 2014-2025 Simon Fraser University
+# Copyright (c) 2010-2025 John Willinsky
 # Distributed under the GNU GPL v3. For full terms see the file docs/COPYING.
 #
 # Script to check and minimize JavaScript for distribution.

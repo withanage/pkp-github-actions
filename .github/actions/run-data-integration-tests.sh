@@ -1,8 +1,14 @@
 #!/bin/bash
 
+# @file actions/run-data-integration-tests.sh
+#
+# Copyright (c) 2014-2025 Simon Fraser University
+# Copyright (c) 2010-2025 John Willinsky
+# Distributed under the GNU GPL v3. For full terms see the file docs/COPYING.
+#
+# Script to run the Cypress data build integration tests
 
-
- set -e # Fail on first error
+set -e # Fail on first error
 
 if [ "${TERM:-}" = "" ]; then
   echo "Setting TERM to dumb" # makes tput happy

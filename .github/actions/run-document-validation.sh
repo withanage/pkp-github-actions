@@ -1,6 +1,15 @@
 #!/bin/bash
 
+# @file actions/run-document-validation.sh
+#
+# Copyright (c) 2014-2025 Simon Fraser University
+# Copyright (c) 2010-2025 John Willinsky
+# Distributed under the GNU GPL v3. For full terms see the file docs/COPYING.
+#
+# Script to run help document validation
+
 set -e # Fail on first error
+
 # Look for help filenames referred to in templates and check that they all exist (in English)
 ERRORS=0
 for filename in `find . -name \*.tpl -exec sed -n -e "s/.*{help[^}]file=\"\([^\"#]\+\)[#\"].*/\1/p" "{}" ";"`; do

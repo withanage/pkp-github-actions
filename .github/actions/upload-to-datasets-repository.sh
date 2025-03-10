@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# @file tools/travis/run-tests.sh
+# @file actions/upload-to-datasets-repository.sh
 #
 # Copyright (c) 2014-2021 Simon Fraser University
 # Copyright (c) 2010-2021 John Willinsky
@@ -33,7 +33,7 @@ cp -r public ~/datasets/${APPLICATION}/${DATASET_BRANCH}/${TEST}
 rm -f ~/datasets/${APPLICATION}/${DATASET_BRANCH}/${TEST}/public/.gitignore
 
 # Add sample export data to the ~/datasets, as appropriate for the app
-if [[ "$DATASET_BRANCH" == "main" ||  "$DATASET_BRANCH" == "stable-3_4_0" || "$DATASET_BRANCH" == "stable-3_3_0" ]]; then
+if [[ "$DATASET_BRANCH" == "main" || "$DATASET_BRANCH" == "stable-3_5_0" || "$DATASET_BRANCH" == "stable-3_4_0" || "$DATASET_BRANCH" == "stable-3_3_0" ]]; then
   case "$APPLICATION" in
     ojs) php tools/importExport.php NativeImportExportPlugin export ~/datasets/${APPLICATION}/${DATASET_BRANCH}/${TEST}/native-export-sample.xml publicknowledge issue 1 ;;
     omp) php tools/importExport.php NativeImportExportPlugin export ~/datasets/${APPLICATION}/${DATASET_BRANCH}/${TEST}/native-export-sample.xml publicknowledge monograph 1 ;;

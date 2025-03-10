@@ -1,5 +1,13 @@
 #!/bin/bash
 
+# @file actions/install-validation-tools.sh
+#
+# Copyright (c) 2014-2025 Simon Fraser University
+# Copyright (c) 2010-2025 John Willinsky
+# Distributed under the GNU GPL v3. For full terms see the file docs/COPYING.
+#
+# Script to install the validation tools
+
 set -e
 wget https://www.python.org/ftp/python/2.7.9/Python-2.7.9.tgz
 sudo tar xzf Python-2.7.9.tgz

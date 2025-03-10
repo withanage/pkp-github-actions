@@ -1,5 +1,13 @@
 #!/bin/bash
 
+# @file actions/git-auto-pull.sh
+#
+# Copyright (c) 2014-2025 Simon Fraser University
+# Copyright (c) 2010-2025 John Willinsky
+# Distributed under the GNU GPL v3. For full terms see the file docs/COPYING.
+#
+# Script to wait for a remote update to be present
+
 check_remote_updated() {
     git branch --set-upstream-to=origin/main main
     git fetch

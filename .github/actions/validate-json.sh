@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# @file tools/travis/validate-json.sh
+# @file actions/validate-json.sh
 #
 # Copyright (c) 2014-2021 Simon Fraser University
 # Copyright (c) 2010-2021 John Willinsky

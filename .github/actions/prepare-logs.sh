@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# @file tools/travis/migration/v3_4_0/prepare-logs.sh
+# @file actions/prepare-logs.sh
 #
 # Copyright (c) 2024 Simon Fraser University
 # Copyright (c) 2024 John Willinsky
